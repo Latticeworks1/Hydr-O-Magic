@@ -473,6 +473,28 @@ L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/
     maxZoom: 19,
     attribution: '&copy; <a href="https://www.esri.com/">Esri</a> contributors'
 }).addTo(map);
+// Add an event listener to the map for view changes
+map.on('moveend', function () {
+    // Get the updated map view parameters
+    const mapBounds = map.getBounds();
+    const maxLat = mapBounds.getNorth(); // Maximum latitude
+    const minLat = mapBounds.getSouth(); // Minimum latitude
+    const maxLng = mapBounds.getEast(); // Maximum longitude
+    const minLng = mapBounds.getWest(); // Minimum longitude
+
+
+    // Update the scatter plot layout based on the map view
+    Plotly.relayout('scatter-plot', {
+        'scene.xaxis.range': [minLng, maxLng],
+        'scene.yaxis.range': [minLat, maxLat],
+
+    });
+});
+// Modify the draggable window behavior
+var dragging = false;
+var scatterPlotVisible = true;
+
+
 // Modal setup
 const modal = document.getElementById("wellModal");
 const span = document.querySelector(".close");
@@ -740,26 +762,29 @@ $(document).ready(function() {
         }
     });
 
-    $("#toggle-scatter-plot").click(function(event) {
-        if (scatterPlotVisible) {
-            $scatterPlotContainer.hide();
-            $(this).text("Open Subsurface View");
-        } else {
-            $scatterPlotContainer.show();
-            $(this).text("Close Subsurface View");
-            centerScatterPlotContainer();
-        }
-        scatterPlotVisible = !scatterPlotVisible;
-        event.stopPropagation();
-        event.preventDefault();
-    });
+$("#toggle-scatter-plot").click(function (event) {
+    if (scatterPlotVisible) {
+        $scatterPlotContainer.hide();
+        // Update the button text to indicate opening the scatter plot
+        $(this).text("Open Subsurface View");
+    } else {
+        $scatterPlotContainer.show();
+        // Update the button text to indicate closing the scatter plot
+        $(this).text("Close Subsurface View");
+        centerScatterPlotContainer();
+    }
+    scatterPlotVisible = !scatterPlotVisible;
+    event.stopPropagation();
+    event.preventDefault();
+});
 
-    $(document).on("click", function(event) {
-        if (!$(event.target).closest("#scatter-plot-container").length && scatterPlotVisible) {
-            $scatterPlotContainer.hide();
-            $("#toggle-scatter-plot").text("Open Subsurface View");
-            scatterPlotVisible = false;
-        }
+// Modify the click event to prevent closing the window when clicking on the map
+$(document).on("click", function (event) {
+    if (!$(event.target).closest("#scatter-plot-container").length && scatterPlotVisible && !$(event.target).hasClass("leaflet-container")) {
+        $scatterPlotContainer.hide();
+        $("#toggle-scatter-plot").text("Open Subsurface View");
+        scatterPlotVisible = false;
+    }
     });
 
     var mapSettingsVisible = false;
@@ -793,10 +818,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 });
-
-
 </script>
 </body>
 </html>
-
-
