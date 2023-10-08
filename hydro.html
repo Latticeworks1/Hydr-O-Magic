@@ -59,7 +59,8 @@ body, html {
 /* Style for the buttons */
 #homeButton,
 #aboutButton,
-#mymapsbutton {
+#mymapsbutton,
+#export-geojson-button {
     background-color: var(--primary-button-color); /* Use existing primary button color */
     color: #fff; /* Button text color */
     padding: 2px 2px; /* Button padding */
@@ -348,6 +349,7 @@ flex-direction: column;  /* Stack children vertically */
         <button id="homeButton">HOME</button>
         <button id="aboutButton">About/How To</button>
         <button id="mymapsbutton">My Maps</button>
+        <button id="export-geojson-button">Export GeoJSON</button>
     </div>
     <div class="container">
         <div id="sidebar">
@@ -493,8 +495,6 @@ map.on('moveend', function () {
 // Modify the draggable window behavior
 var dragging = false;
 var scatterPlotVisible = true;
-
-
 // Modal setup
 const modal = document.getElementById("wellModal");
 const span = document.querySelector(".close");
@@ -538,6 +538,10 @@ span.onclick = function () {
 function closeModal() {
     modal.style.display = "none";
 }
+let elevationStep = 0.25; // Initialize with default value
+let interpolatedGeoJSON = null; // Variable to store the GeoJSON data
+
+// Function to add well data
 function addWellData(lat, lng, elevation, wellName) {
     if (elevation !== null && !isNaN(elevation) && wellName !== null) {
         const wellID = wellData.length + 1;
@@ -553,42 +557,60 @@ function addWellData(lat, lng, elevation, wellName) {
         alert('Please enter a valid number for elevation and a valid name for the well.');
     }
 }
-            toggleWellsTableHeader.addEventListener('click', toggleCollapsibleTable);
-            toggleElevationTableHeader.addEventListener('click', toggleCollapsibleTable);
-            function toggleCollapsibleTable() {
-                const tableContent = this.nextElementSibling;
-                if (tableContent.style.display === 'none' || tableContent.style.display === '') {
-                    tableContent.style.display = 'block';
-                } else {
-                    tableContent.style.display = 'none';
-                }
-            }
-            function updateWellTable() {
-                const tableBody = document.querySelector('#wells-table tbody');
-                tableBody.innerHTML = '';
-                wellData.forEach((well) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${well.wellID}</td>
-                        <td>${well.wellName}</td>
-                        <td>${well.lat.toFixed(6)}</td>
-                        <td>${well.lng.toFixed(6)}</td>
-                        <td>${well.elevation.toFixed(2)}</td>
-                    `;
-                    tableBody.appendChild(row);
-                });
-            }
-let elevationStep = 0.25; // Initialize with default value
 
+// Event listeners for table toggles
+toggleWellsTableHeader.addEventListener('click', toggleCollapsibleTable);
+toggleElevationTableHeader.addEventListener('click', toggleCollapsibleTable);
+
+function toggleCollapsibleTable() {
+    const tableContent = this.nextElementSibling;
+    if (tableContent.style.display === 'none' || tableContent.style.display === '') {
+        tableContent.style.display = 'block';
+    } else {
+        tableContent.style.display = 'none';
+    }
+}
+
+// Function to update the well table
+function updateWellTable() {
+    const tableBody = document.querySelector('#wells-table tbody');
+    tableBody.innerHTML = '';
+    wellData.forEach((well) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${well.wellID}</td>
+            <td>${well.wellName}</td>
+            <td>${well.lat.toFixed(6)}</td>
+            <td>${well.lng.toFixed(6)}</td>
+            <td>${well.elevation.toFixed(2)}</td>
+        `;
+        tableBody.appendChild(row);
+    });
+}
+
+
+// Add an event listener to the elevation step input field
+const elevationStepInput = document.getElementById("elevation-step");
+elevationStepInput.addEventListener("change", updateContourLines);
+
+// Function to draw interpolated elevations
 function drawInterpolatedElevations() {
     if (wellData.length > 1) {
+        const geojsonFeatures = []; // Create an array to store GeoJSON features
+        const gridData = []; // Create an array to store grid data
+
+        // Iterate through the wellData array
         for (let i = 0; i < wellData.length; i++) {
             const start = wellData[i];
             const end = wellData[(i + 1) % wellData.length];
             const startElevation = Math.min(start.elevation, end.elevation);
             const endElevation = Math.max(start.elevation, end.elevation);
+
+            // Iterate through elevations within the range
             for (let elev = Math.ceil(startElevation * 4) / 4; elev < endElevation; elev += elevationStep) {
-                const fraction = (elev - start.elevation) / (end.elevation - start.elevation);
+                const fraction = (elev - startElevation) / (endElevation - startElevation);
+
+                // Calculate the interpolated point
                 const interpolatedPoint = turf.along(
                     turf.lineString([[start.lng, start.lat], [end.lng, end.lat]]),
                     fraction * turf.distance(turf.point([start.lng, start.lat]), turf.point([end.lng, end.lat])),
@@ -596,30 +618,107 @@ function drawInterpolatedElevations() {
                 );
                 const coord = interpolatedPoint.geometry.coordinates;
                 const reversedElevation = 0 - elev; // Reverse the elevation for the marker
-                addInterpolatedPointToTable(coord[1], coord[0], reversedElevation); // Use reversed elevation
-                addInterpolatedMarker(coord[1], coord[0], reversedElevation); // Add the interpolated marker
+
+                // Create a GeoJSON feature for each interpolated point
+                const feature = {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [coord[0], coord[1]]
+                    },
+                    properties: {
+                        elevation: reversedElevation.toFixed(2)
+                    }
+                };
+                geojsonFeatures.push(feature); // Add the feature to the array
+
+                // Create grid data point
+                const gridPoint = {
+                    x: coord[0],
+                    y: coord[1],
+                    z: reversedElevation
+                };
+                gridData.push(gridPoint); // Add the grid point to the array
+
+                // Add the interpolated marker to the map (existing functionality)
+                addInterpolatedMarker(coord[1], coord[0], reversedElevation);
+
+                // Add the interpolated point to the table (existing functionality)
+                addInterpolatedPointToTable(coord[1], coord[0], reversedElevation);
             }
         }
+
+        // Create a GeoJSON FeatureCollection for the interpolated points
+        const geojsonCollection = {
+            type: 'FeatureCollection',
+            features: geojsonFeatures
+        };
+
+        // Store the GeoJSON data in the variable
+        interpolatedGeoJSON = geojsonCollection;
+
+        // Create plotlyData for scatter plot (if needed)
+        const plotlyData = geojsonFeatures.map((feature) => {
+            const coordinates = feature.geometry.coordinates;
+            const elevation = parseFloat(feature.properties.elevation);
+
+            return {
+                x: coordinates[0],
+                y: coordinates[1],
+                z: elevation
+            };
+        });
     }
 }
-            function addInterpolatedPointToTable(lat, lng, elevation) {
-                const tableBody = document.querySelector('#elevation-table-interpolated tbody');
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${lat.toFixed(6)}</td>
-                    <td>${lng.toFixed(6)}</td>
-                    <td>${elevation.toFixed(2)}</td>
-                `;
-                tableBody.appendChild(row);
-            }
-            function addInterpolatedMarker(lat, lng, elevation) {
-                L.marker([lat, lng], {
-                    icon: L.divIcon({
-                        className: 'interpolated-point',
-                        html: `<span class="elevation-label">${elevation.toFixed(2)}</span>`,
-                    })
-                }).addTo(map);
-            }
+
+// Function to export GeoJSON data
+function exportGeoJSON() {
+    if (interpolatedGeoJSON) {
+        const geojsonStr = JSON.stringify(interpolatedGeoJSON, null, 2);
+        const blob = new Blob([geojsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+
+        // Create a download link and trigger the download
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'interpolated_data.geojson';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        // Revoke the URL to release resources
+        URL.revokeObjectURL(url);
+    } else {
+        console.error('No GeoJSON data available to export.');
+    }
+}
+
+// Function to add an interpolated point to the table
+function addInterpolatedPointToTable(lat, lng, elevation) {
+    const tableBody = document.querySelector('#elevation-table-interpolated tbody');
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td>${lat.toFixed(6)}</td>
+        <td>${lng.toFixed(6)}</td>
+        <td>${elevation.toFixed(2)}</td>
+    `;
+    tableBody.appendChild(row);
+}
+
+// Add a click event listener to the "Export GeoJSON" button
+const exportButton = document.getElementById('export-geojson-button');
+exportButton.addEventListener('click', exportGeoJSON);
+
+
+// Function to add an interpolated marker to the map (existing functionality)
+function addInterpolatedMarker(lat, lng, elevation) {
+    L.marker([lat, lng], {
+        icon: L.divIcon({
+            className: 'interpolated-point',
+            html: `<span class="elevation-label">${elevation.toFixed(2)}</span>`,
+        })
+    }).addTo(map);
+}
           // retrieve data from the Wells Table
             function getDataFromTable() {
                 const tableRows = document.querySelectorAll('#wells-table tbody tr');
@@ -818,6 +917,9 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 });
+
 </script>
 </body>
 </html>
+
+
