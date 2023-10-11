@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HydroMatic</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Include Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Include Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+<style>
+  /* Global Styles */
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    color: #333;
+    margin: 0;
+    overflow-x: hidden;
+  }
+  h1, h3 {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    font-size: 20px;
+  }
+
+  /* Header Styles */
+  header {
+    background-color: #343a40;
+    color: #ffffff;
+    padding: 5px 0;
+    height: 5vh;
+  }
+
+/* Sidebar Styles */
+.sidebar {
+  background-color: #343a40;
+  height: 100vh;
+  padding: 20px;
+  color: #ffffff;
+  width: 70px;
+  transition: width 0.3s ease-in-out; /* Improved transition */
+  overflow: hidden; /* Hide overflow content */
+}
+
+.sidebar:hover {
+  width: 10vw;
+  overflow: auto; /* Show overflow content on hover */
+}
+
+/* Custom Input Style */
+.custom-input {
+  background-color: #343a40;
+  color: #ffffff;
+  border: 1px solid #454d55;
+  width: 5vw;
+  height: 4vh;
+}
+
+.custom-input:hover {
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Added hover effect */
+}
+
+/* Project Management Elements */
+.project-management {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+}
+
+.project-management h4 {
+  margin: 0;
+  padding: 5px;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.project-list {
+  margin-top: 10px;
+  list-style-type: none;
+  padding: 0;
+}
+
+.project-list-item {
+  margin: 5px 0;
+  padding: 5px;
+  background-color: #454d55;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.project-list-item:hover {
+  background-color: #343a40;
+  color: #ffffff;
+}
+
+
+  /* Map and Chart Styles */
+  #map {
+    width: 100%;
+    height: 100%;
+  }
+  
+  #plotDiv {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Adjust Plot Size */
+  .plot-container {
+    height: 50vh;
+    width: 100%;
+    margin-top: 1px;
+  }
+
+/* Map, Plot, and Table Layout */
+.map-plot-table {
+  display: flex;
+  height: 100vh;
+}
+
+.map {
+  flex: 2;  /* Increase the flex value to make map wider */
+  height: 99vh;
+  width: 60vw;  /* Changed from fixed width to auto */
+  padding: 1%;
+}
+
+.plot-table-column {
+  flex: 1;  /* Decrease the flex value to reduce space */
+  display: flex;
+  flex-direction: column;
+}
+
+.plot, .table-container {
+  flex: 1;
+  padding-left: 1px;
+}
+
+  /* Additional Spacing and Scroll */
+  .plot {
+    margin-bottom: 30px; /* Added space between plot and table */
+    padding-bottom: 30px;
+  }
+
+  .table-container {
+    height: 20px;
+    overflow-y: auto; /* Added vertical scroll */
+    margin-bottom: 30px; /* Added space between plot and table */
+    padding-bottom: 10px; /* Added space between plot and table */
+
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .map-plot-table {
+      flex-direction: column;
+    }
+    .map, .plot-table-column {
+      flex: none;
+      width: 100%;
+    }
+  }
+
+  /* Add this CSS to make the editable cells smaller */
+  .table input[type="text"].wellid,
+  .table input[type="number"].elevation {
+    width: 70px; /* Adjust the width as needed */
+    height: 30px; /* Adjust the height as needed */
+  }
+/* Inline Form Container */
+.contour-form-inline {
+  display: flex;
+  align-items: center;
+  background-color: #343a40; /* Same as sidebar for cohesion */
+  padding: 1%;
+  border-radius: 4px;
+}
+
+/* Inline Form Label */
+.form-label-inline {
+  color: #ffffff; /* White color to match existing design */
+  margin-right: 19px;
+  font-size: 1rem;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+/* Inline Form Control */
+.form-control-inline.custom-input {
+  flex-grow: 1; /* Allow it to take available space */
+  transition: all 0.2s ease-in-out;
+  width: 10vw; /* Auto width based on flex-grow */
+  height: 4vh;
+  border-radius: 4px;
+}
+
+.form-control-inline.custom-input:hover {
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.5); /* Slight glow effect on hover */
+}
+</style>
+
+  <!-- Include Leaflet and Plotly JS -->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script>
+    // Add your JavaScript code here
+    function animateMapMarker() {
+      // Add code for marker animation
+    }
+  </script>
+</head>
+<body>
+  <!-- Header -->
+  <header class="text-center">
+    <h1>Hydr-O-Matic!</h1>
+  </header>
+  <!-- Main content -->
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar (Left Column) -->
+      <nav class="col-lg-3 sidebar">
+
+        <!-- Project and Map Selection Dropdowns -->
+        <div class="mb-3">
+          <label for="projectSelect" class="form-label-inline">Project:</label>
+          <select id="projectSelect" class="form-control-inline custom-input">
+            <!-- Options for selecting a project will be added dynamically -->
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="mapSelect" class="form-label-inline">Map:</label>
+          <select id="mapSelect" class="form-control-inline custom-input">
+            <!-- Options for selecting a map will be added dynamically -->
+          </select>
+        </div>
+        <!-- Project and Map Management Buttons -->
+        <div class="mb-3">
+          <button id="createProjectBtn" class="btn btn-primary">New Project</button>
+          <button id="createMapBtn" class="btn btn-primary">New Map</button>
+          <button id="saveDataBtn" class="btn btn-success">Save/export</button>
+        </div>
+      </nav>
+      <!-- Main Content (Middle Column) -->
+      <main class="col-lg-9">
+        <!-- Map, Plot, and Table layout -->
+        <div class="map-plot-table">
+          <!-- Large Map (Left Half) -->
+          <div class="map">
+            <h3></h3>
+            <div id="map"></div>
+          </div>
+          <!-- Plot and Table Column (Right Half) -->
+          <div class="plot-table-column">
+            <!-- Plotly Contour Plot (Top) -->
+            <div class="plot">
+              <h3>
+                <div class="contour-form-inline">
+                  <label for="contourStep" class="form-label-inline">Contour Step:</label>
+                  <input type="number" id="contourStep" value="0.25" class="form-control-inline custom-input">
+                </div>
+              </h3>
+              <div id="plotDiv" class="plot-container"></div>
+            </div>
+            <!-- Table (Bottom) -->
+            <div class="table-container">
+              <div class="mb-3">
+                <!-- Additional content related to the table can be added here -->
+              </div>
+              <table id="dataTable" class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Latitude</th>
+                    <th>Longitude</th>
+                    <th>Elevation</th>
+                    <th></th> <!-- Added a new column for the "Delete" button -->
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Add table data dynamically using JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+<pre id="jsonDisplay"></pre>
+      </main>
+    </div>
+  </div>
+<script>
+Object.defineProperty(window, 'storage', {
+  set: function (value) {
+    _storage = value;
+    updateJSONDisplay();
+  },
+  get: function () {
+    return _storage;
+  }
+});
+
+// Initialize the _storage variable and update the JSON display
+var _storage = {
+  "mapMarkers": {},
+  "data": [] // Combine plot and table data into a single array
+};
+
+// Initialize Leaflet map
+var map = L.map('map').setView([51.505, -0.09], 13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+// Initialize data table
+var dataTable = document.getElementById('dataTable');
+
+// Function to update the JSON display
+function updateJSONDisplay() {
+  var jsonDisplay = document.getElementById('jsonDisplay');
+  jsonDisplay.textContent = JSON.stringify(storage, null, 2); // Pretty-print with 2-space indentation
+}
+
+// Function to update the plot and table data based on changes
+function updateDataAndPlot() {
+  // Update the Contour Plot
+  updatePlotBasedOnMapView();
+
+  // Update the JSON display
+  updateJSONDisplay();
+}
+
+// Function to delete a map marker
+function deleteMapMarker(markerKey) {
+  if (markerKey in storage.mapMarkers) {
+    map.removeLayer(storage.mapMarkers[markerKey]);
+    delete storage.mapMarkers[markerKey];
+  }
+}
+
+// Function to delete a row and corresponding marker and plot data
+function deleteTableRow(index) {
+  dataTable.deleteRow(index + 1);
+
+  // Remove the map marker
+  let markerKey = Object.keys(storage.mapMarkers).find(key => {
+    let marker = storage.mapMarkers[key];
+    return marker.lat === storage.data[index][0] && marker.lng === storage.data[index][1];
+  });
+
+  if (markerKey !== undefined) {
+    deleteMapMarker(markerKey); // Call the deleteMapMarker function
+  }
+
+  // Remove the data from storage.data
+  storage.data.splice(index, 1);
+
+  // Update the plot and table data
+  updateDataAndPlot();
+}
+
+// Function to check if a Well ID already exists
+function wellIdExists(wellId) {
+  return Object.values(storage.mapMarkers).some(marker => marker.wellId === wellId);
+}
+
+// Event listener for clicking on the map
+map.on('click', function(e) {
+  // New point clicked
+  var lat = e.latlng.lat;
+  var lng = e.latlng.lng;
+  
+  var wellId = "";
+  while (wellId.trim() === "") {
+    wellId = prompt('Enter Well ID:');
+    if (wellId === null) return; // User canceled
+  }
+
+  // Check if a marker with the same Well ID already exists
+  if (wellIdExists(wellId)) {
+    alert('A marker with the same Well ID already exists. Please enter a unique Well ID.');
+    return;
+  }
+
+  var elevation = null;
+  while (isNaN(elevation)) {
+    var elevationStr = prompt('Enter Elevation:');
+    if (elevationStr === null) return; // User canceled
+    elevation = parseFloat(elevationStr);
+  }
+
+  // Add marker to the map and to storage.mapMarkers
+  let markerKey = wellId; // Use wellId as the key
+  storage.mapMarkers[markerKey] = { "lat": lat, "lng": lng, "wellId": wellId, "elevation": elevation };
+  L.marker([lat, lng])
+    .addTo(map)
+    .bindPopup('Well ID: ' + wellId + '<br>Latitude: ' + lat + '<br>Longitude: ' + lng + '<br>Elevation: ' + elevation)
+    .openPopup();
+  // Add data to storage.data
+  storage.data.push([lat, lng, elevation]);
+  // Update the map marker JSON display immediately
+  updateJSONDisplay();
+
+
+
+  // Populate the table with the new row
+  var row = dataTable.insertRow(-1);
+  var cell1 = row.insertCell(0); // Well ID
+  var cell2 = row.insertCell(1); // Latitude
+  var cell3 = row.insertCell(2); // Longitude
+  var cell4 = row.insertCell(3); // Elevation
+  var cell5 = row.insertCell(4); // Action (Delete button)
+  // Add Well ID, Latitude, Longitude, and Elevation to the table
+  cell1.innerHTML = '<input type="text" class="wellid" contenteditable="true" value="' + wellId + '">';
+  cell2.innerHTML = lat;
+  cell3.innerHTML = lng;
+  cell4.innerHTML = '<input type="number" class="elevation" value="' + elevation + '">';
+  cell5.innerHTML = '<button class="btn btn-danger delete-btn">Delete</button>';
+
+  // Event listener for editing Well ID
+  cell1.querySelector('.wellid').addEventListener('input', function() {
+    // Get the updated Well ID value
+    var updatedWellId = this.value.trim();
+
+    if (updatedWellId === "") {
+      alert('Well ID cannot be empty. Please enter a valid Well ID.');
+      this.value = wellId; // Reset the input to the original Well ID
+      return;
+    }
+
+    // Check if a marker with the same Well ID already exists
+    if (updatedWellId !== wellId && wellIdExists(updatedWellId)) {
+      alert('A marker with the same Well ID already exists. Please enter a unique Well ID.');
+      this.value = wellId; // Reset the input to the original Well ID
+      return;
+    }
+
+    // Update storage.mapMarkers with the new Well ID
+    let rowIndex = this.closest('tr').rowIndex - 1; // Subtract 1 to account for the header row
+    let markerKey = Object.keys(storage.mapMarkers).find(key => {
+      let marker = storage.mapMarkers[key];
+      return marker.lat === storage.data[rowIndex][0] && marker.lng === storage.data[rowIndex][1];
+    });
+    storage.mapMarkers[markerKey].wellId = updatedWellId;
+
+    // Update the plot and table data
+    updateDataAndPlot();
+  });
+
+  // Event listener for entering Elevation
+  cell4.querySelector('.elevation').addEventListener('change', function() {
+    var updatedElevation = parseFloat(this.value);
+    let rowIndex = this.closest('tr').rowIndex - 1; // Subtract 1 to account for the header row
+    storage.data[rowIndex][2] = updatedElevation;
+
+    // Update the plot and table data
+    updateDataAndPlot();
+  });
+
+  // Event listener for deleting a row
+  cell5.querySelector('.delete-btn').addEventListener('click', function() {
+    const rowIndex = this.closest('tr').rowIndex - 1;  // Subtract 1 to account for the header row
+    if (rowIndex >= 0) {  // Verify it's not a header row
+      deleteTableRow(rowIndex);
+    }
+  });
+});
+// Function to update a table row and corresponding marker and plot data
+function updateTableRow(rowIndex, updatedWellId, updatedElevation) {
+  // Update storage.mapMarkers
+  let markerKey = Object.keys(storage.mapMarkers).find(key => {
+    let marker = storage.mapMarkers[key];
+    return marker.lat === storage.data[rowIndex][0] && marker.lng === storage.data[rowIndex][1];
+  });
+  storage.mapMarkers[markerKey].wellId = updatedWellId;
+  storage.mapMarkers[markerKey].elevation = updatedElevation;
+
+  // Update storage.data
+  storage.data[rowIndex][2] = updatedElevation;
+
+  // Update the plot and table data
+  updateDataAndPlot();
+}
+// Initialize the plot
+var plotDiv = document.getElementById('plotDiv');
+function updatePlotBasedOnMapView() {
+  var bounds = map.getBounds();
+  var maxLat = bounds.getNorth();
+  var minLat = bounds.getSouth();
+  var maxLng = bounds.getEast();
+  var minLng = bounds.getWest();
+  var contourStep = parseFloat(document.getElementById('contourStep').value);
+  var zMin = Math.min(...storage.data.map(d => d[2]));
+  var zMax = Math.max(...storage.data.map(d => d[2]));
+  var contourStart = Math.ceil(zMin / contourStep) * contourStep;
+  var contourEnd = Math.floor(zMax / contourStep) * contourStep;
+  if (contourStep <= 0 || contourStart > contourEnd) {
+    return;
+  }
+  var contourTrace = {
+    type: 'contour',
+    z: storage.data.map(d => d[2]),
+    x: storage.data.map(d => d[1]), // Switched to Longitude
+    y: storage.data.map(d => d[0]), // Switched to Latitude
+    contours: {
+      start: contourStart,
+      end: contourEnd,
+      size: contourStep
+    },
+    text: storage.data.map(d => 'Elevation: ' + d[2]), // Labels for contour lines
+  };
+  var pointTrace = {
+    type: 'scatter',
+    mode: 'markers',
+    x: storage.data.map(d => d[1]), // Switched to Longitude
+    y: storage.data.map(d => d[0]), // Switched to Latitude
+    marker: { color: 'red', size: 10 },
+    name: 'Points'
+  };
+  var layout = {
+    xaxis: {
+      range: [minLng, maxLng],
+      title: 'Longitude',
+      showgrid: true,     // Show gridlines
+      showline: true,     // Show axis line
+      showticklabels: true,  // Show tick labels
+      ticks: 'outside'    // Place ticks outside the axis
+    },
+    yaxis: {
+      range: [minLat, maxLat],
+      title: 'Latitude',
+      showgrid: true,     // Show gridlines
+      showline: true,     // Show axis line
+      showticklabels: true,  // Show tick labels
+      ticks: 'outside'    // Place ticks outside the axis
+    },
+    paper_bgcolor: 'transparent', // Set the plot paper background color to transparent
+    plot_bgcolor: 'transparent', // Set the plot background color to transparent
+    margin: {
+      t: 5, // Top margin
+      l: 58, // Left margin
+      r: 5, // Right margin
+      b: 40  // Bottom margin
+    }
+  };
+  Plotly.newPlot(plotDiv, [contourTrace, pointTrace], layout);
+}
+map.on('moveend', updatePlotBasedOnMapView);
+
+// Initialize the plot initially
+updatePlotBasedOnMapView();
+updateJSONDisplay();
+</script>
+
+
+</body>
+</html>
