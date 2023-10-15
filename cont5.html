@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Advanced Leaflet Example</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico"> <!-- Add your favicon here -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        /* General Styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #222;
+            color: white;
+        }
+
+        /* Flexbox layout for the overall container */
+        #app-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Top Row for buttons and inputs */
+        #inputControls {
+            display: flex;
+            justify-content: flex-end; /* Move content to the right */
+            padding: 10px;
+            width: 100%;
+            background-color: #333;
+        }
+
+        /* Style the buttons and inputs within #inputControls */
+        #inputControls button, #inputControls input {
+            background-color: #444;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin-right: 10px; /* Add margin between elements */
+        }
+
+        /* Left Section for map and table */
+        #left-side {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Map Styling */
+        #map {
+            display: flex;
+            flex-direction: column;
+            align-items: right;
+            height: 66vh;
+            width: 80vw;
+        }
+
+      /* Additional Table Styling */
+#markerTable {
+    border-collapse: collapse;
+    width: 80%;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+#markerTable thead {
+    background-color: #f2f2f2;
+}
+
+#markerTable thead th {
+    padding: 1rem;
+
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+#markerTable tbody td {
+    padding: 1rem;
+    text-align: left;
+    color: white;
+}
+
+/* Styling for Headers */
+header {
+    background-color: #333;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+
+        /* Right side with modal and input controls */
+        #right-side {
+            flex: 1;
+            padding: 10px;
+        }
+
+        /* Existing Modal Styles with minor tweaks for dark theme */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .modal-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #333;
+            color: #fff;
+            padding: 2px;
+            border: 1px solid #444;
+            width: 35vw;
+            height: 35vh;
+            box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            align-self: flex-end;
+        }
+
+        .close:hover, .close:focus {
+            color: #fff;
+        }
+
+        @media screen and (max-width: 600px) {
+            .modal-content {
+                width: 90%;
+                height: 90%;
+            }
+        }
+/* Style for the icon button */
+#iconButton {
+    position: absolute;
+    top: 10px; /* Adjust the top position as needed */
+    left: 10px; /* Adjust the left position as needed */
+}
+
+/* Style for the icon image */
+#iconButton img {
+    width: 5vw; /* Adjust the width of the icon as needed */
+    height: auto; /* Maintain aspect ratio */
+    cursor: pointer; /* Add a pointer cursor for interaction */
+}
+    </style>
+</head>
+<body>
+    <div id="app-container">
+
+ <div id="inputControls">
+<header>
+    <a id="iconButton" href="#">
+        <img src="path_to_your_icon_image.png" alt="Icon">
+    </a>
+            <input type="text" id="projectNumberInput" placeholder="Enter Project Number">
+            <input type="text" id="mapNameInput" placeholder="Enter Map Name">
+            <button id="exportMapDataBtn">Export Map Data</button>
+            <button id="loadMapDataBtn">Load Map Data</button>
+            <button id="showContourPlotBtn">Show Contour Plot</button>
+            <div id="contourPlotModal" class="modal">
+                <div class="modal-content" id="draggableModal">
+                    <span class="close" id="closeContourPlot">&times;</span>
+
+                    <div id="contourPlotContainer">
+                        <div id="contourPlot"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="left-side">
+            <div id="map"></div>
+    <table id="markerTable" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                        <th>Elevation</th>
+                        <th>Well ID</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+        <div id="right-side" class="flex-item">
+            <!-- Add your content here -->
+        </div>
+       
+    </div>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+function exportMapData() {
+    console.log("Export button clicked");  // Debugging line
+    // Assuming the markers data are stored in the `markerData` array
+    if (markerData && markerData.length > 0) {
+        const blob = new Blob([JSON.stringify(markerData)], { type: 'application/json' });
+        
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `${document.getElementById("projectNumberInput").value}_${document.getElementById("mapNameInput").value}.json`;
+        
+        // Trigger a click event to download the file
+        a.click();
+    } else {
+        console.log("markerData is empty or not initialized");
+    }
+}
+        // Declare global variables for map, markers, and modal state
+        let map;
+        let markerData = [];
+        let markers = [];
+        let modalOpen = false;
+
+        // Initialize application after window load
+        window.addEventListener("load", initialize);
+
+        /**
+         * Main Initialization Function
+         */
+        function initialize() {
+            // Initialize map and load markers
+            map = initializeMap();
+            markerData = loadMarkersFromLocalStorage();
+            markers = [];
+
+            // Add existing markers to map
+            markerData.forEach(coord => addMarker(coord));
+
+            // Attach event handlers
+            map.on('click', handleMapClick);
+            document.getElementById("showContourPlotBtn").addEventListener("click", showContourPlot);
+            document.getElementById("closeContourPlot").addEventListener("click", hideContourPlot);
+            
+            // Make contour plot modal draggable
+            dragElement(document.getElementById("draggableModal"));
+
+            // Listen to map zoom and move events to update contour plot
+            map.on('moveend zoomend', function() {
+                if (modalOpen) {
+                    drawContourPlot();
+                }
+            });
+            
+            // Initialize the table with marker data
+            updateTable();
+        }
+
+        /**
+         * Initialize the Leaflet map.
+         * @returns {object} Initialized map object.
+         */
+        function initializeMap() {
+            // Initialize Leaflet map and set view
+            // Add OpenStreetMap tile layer
+            const map = L.map('map').setView([51.505, -0.09], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            return map;
+        }
+ document.getElementById("exportMapDataBtn").addEventListener("click", exportMapData);
+    document.getElementById("loadMapDataBtn").addEventListener("click", loadMapData);  // Add a new function to handle this
+
+
+/**
+ * Handle click events on the map to add new markers.
+ * @param {Event} e - Leaflet click event object.
+ */
+function handleMapClick(e) {
+    const wellIDInput = document.createElement("input");
+    wellIDInput.type = "text";
+    wellIDInput.placeholder = "Enter Well ID";
+
+    const elevationInput = document.createElement("input");
+    elevationInput.type = "number";
+    elevationInput.placeholder = "Enter Elevation";
+
+    const addButton = document.createElement("button");
+    addButton.textContent = "Add Marker";
+    addButton.addEventListener("click", () => {
+        const wellID = wellIDInput.value.trim();
+        const elevation = parseFloat(elevationInput.value.trim());
+
+        if (wellID === "") {
+            alert("Please enter a Well ID.");
+            return;
+        }
+
+        // Process coordinates and add marker with Well ID and elevation
+        const coord = { lat: e.latlng.lat, lng: e.latlng.lng, elevation: elevation, wellID: wellID };
+        addMarker(coord);
+        markerData.push(coord);
+        saveMarkersToLocalStorage();
+        updateTable();
+    });
+
+    // Create a popup with input fields for Well ID and elevation
+    const popupContent = document.createElement("div");
+    popupContent.appendChild(wellIDInput);
+    popupContent.appendChild(elevationInput);
+    popupContent.appendChild(addButton);
+
+    L.popup()
+        .setLatLng(e.latlng)
+        .setContent(popupContent)
+        .openOn(map);
+}
+
+// Function to add a new marker to the map
+function addMarker(coord) {
+    // Create and add marker to the map
+    const marker = L.marker([coord.lat, coord.lng])
+        .addTo(map)
+        .bindPopup(`Coordinates: ${coord.lat}, ${coord.lng}, Elevation: ${coord.elevation}, Well ID: ${coord.wellID}`)
+        .openPopup();
+
+    // Add right-click event listener to remove marker
+    marker.on('contextmenu', function (e) {
+        const index = markers.indexOf(this);
+        removeMarker(index);
+    });
+
+    // Add marker to the global markers array
+    markers.push(marker);
+}
+// Function to load markers data from local storage
+function loadMarkersFromLocalStorage() {
+    // Fetch saved markers from local storage and parse the JSON data
+    const savedData = localStorage.getItem("markerData");
+    return savedData ? JSON.parse(savedData) : [];
+}
+
+// Function to save current markers data to local storage
+function saveMarkersToLocalStorage() {
+    // Convert markers data to JSON and save to local storage
+    localStorage.setItem("markerData", JSON.stringify(markerData));
+}
+
+
+function updateTable() {
+    const tableBody = document.getElementById("tableBody");
+    tableBody.innerHTML = "";
+
+    markerData.forEach((coord, index) => {
+        const row = tableBody.insertRow();
+        const latCell = row.insertCell(0);
+        const lngCell = row.insertCell(1);
+        const elevCell = row.insertCell(2);
+        const wellIDCell = row.insertCell(3); // Add a cell for Well ID
+        wellIDCell.innerHTML = `<input type="text" id="wellIDInput${index}" value="${coord.wellID}" onchange="updateWellID(${index}, this.value)">`; // Input field for Well ID
+        const actionCell = row.insertCell(4); // Adjust the index for the action cell
+
+        latCell.textContent = coord.lat;
+        lngCell.textContent = coord.lng;
+
+        const elevationInput = document.createElement("input");
+        elevationInput.type = "number";
+        elevationInput.value = coord.elevation;
+        elevationInput.addEventListener("change", function () {
+            coord.elevation = parseFloat(this.value);
+            saveMarkersToLocalStorage();
+            markers[index].bindPopup(`Coordinates: ${coord.lat}, ${coord.lng}, Elevation: ${coord.elevation}, Well ID: ${coord.wellID}`).openPopup();
+            drawContourPlot(); // Redraw the contour plot on elevation change
+        });
+        elevCell.appendChild(elevationInput);
+
+        const removeButton = document.createElement("button");
+        removeButton.textContent = "Remove";
+        removeButton.addEventListener("click", () => removeMarker(index));
+        actionCell.appendChild(removeButton);
+    });
+}
+
+function updateWellID(index, newWellID) {
+    markerData[index].wellID = newWellID;
+    saveMarkersToLocalStorage();
+    markers[index].bindPopup(`Coordinates: ${markerData[index].lat}, ${markerData[index].lng}, Elevation: ${markerData[index].elevation}, Well ID: ${newWellID}`).openPopup();
+}
+
+    function removeMarker(index) {
+        const markerToRemove = markers[index];
+        if (markerToRemove) {
+            markerToRemove.remove();
+        }
+
+        markers.splice(index, 1);
+        markerData.splice(index, 1);
+        updateTable();
+        saveMarkersToLocalStorage();
+        drawContourPlot(); // Redraw the contour plot on marker removal
+    }
+
+    // Function to show the modal
+    function showContourPlot() {
+        const modal = document.getElementById("contourPlotModal");
+
+        // Open the modal
+        modal.style.display = "block";
+        modalOpen = true;
+
+        // This is where you would normally initialize and show your contour plot.
+        // For example, you can populate 'contourPlotContainer' with the relevant information or graphics.
+        drawContourPlot(); // Redraw the contour plot when opening the modal
+    }
+
+    // Function to hide the modal
+    function hideContourPlot() {
+        const modal = document.getElementById("contourPlotModal");
+
+        // Close the modal
+        modal.style.display = "none";
+        modalOpen = false;
+    }
+
+    // New function to make the modal draggable
+    function dragElement(elmnt) {
+        var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        elmnt.onmousedown = dragMouseDown;
+
+        function dragMouseDown(e) {
+            e = e || window.event;
+            e.preventDefault();
+            // get the mouse cursor position at startup:
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            document.onmouseup = closeDragElement;
+            document.onmousemove = elementDrag;
+        }
+
+        function elementDrag(e) {
+            e = e || window.event;
+            e.preventDefault();
+            // calculate the new cursor position:
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            // set the element's new position:
+            elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+            elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+        }
+
+        function closeDragElement() {
+            document.onmouseup = null;
+            document.onmousemove = null;
+        }
+    }
+
+function drawContourPlot() {
+    const latitudes = markerData.map(coord => coord.lat);
+    const longitudes = markerData.map(coord => coord.lng);
+    const elevations = markerData.map(coord => coord.elevation);
+
+    const bounds = map.getBounds();
+    
+    const maxLat = bounds.getNorth();
+    const minLat = bounds.getSouth();
+    const maxLng = bounds.getEast();
+    const minLng = bounds.getWest();
+
+    // Create a scatter plot for the map markers
+    const markerTrace = {
+        x: latitudes,
+        y: longitudes,
+        mode: 'markers',
+        type: 'scatter',
+        marker: {
+            size: 8,
+            color: 'blue', // You can change the color as desired
+            symbol: 'circle',
+        },
+        name: 'Markers'
+    };
+
+    // Create a contour plot for elevations
+    const contourTrace = {
+        x: latitudes,
+        y: longitudes,
+        z: elevations,
+        type: 'contour',
+        colorscale: 'Viridis', // You can choose a different colorscale
+        zmin: Math.min(...elevations),
+        zmax: Math.max(...elevations),
+        colorbar: {
+            title: 'Elevation'
+        },
+        contours: {
+            coloring: 'heatmap'
+        },
+        name: 'Elevation'
+    };
+
+    const data = [markerTrace, contourTrace];
+
+    const layout = {
+        title: 'Contour Plot for Elevation with Map Markers',
+        xaxis: { 
+            title: 'Latitude',
+            range: [minLat, maxLat]
+        },
+        yaxis: { 
+            title: 'Longitude',
+            range: [minLng, maxLng]
+        },
+        paper_bgcolor: 'babyblue',
+        plot_bgcolor: 'babyblue'
+    };
+
+    if (modalOpen) {
+        Plotly.newPlot('contourPlot', data, layout);
+    }
+}
+</script>
+</body>
+</html>
+
