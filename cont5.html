@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Advanced Leaflet Example</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico"> <!-- Add your favicon here -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<style>
+/* Navbar Styles */
+#navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    color: #fff;
+    padding: 16px 32px;
+    width: 100%;
+}
+
+.nav-logo {
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    flex-grow: 1;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.nav-links li {
+    margin: 0 8px;
+}
+
+.nav-links a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 18px;
+    padding: 8px 16px;
+}
+
+.menu-toggle {
+    display: none;
+}
+
+.bar {
+    background-color: #fff;
+    margin: 3px 0;
+    width: 25px;
+    height: 3px;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .menu-toggle {
+        display: block;
+    }
+
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background-color: #333;
+    }
+
+    .nav-links li {
+        margin: 8px 0;
+        text-align: left;
+    }
+
+    .nav-links.active {
+        display: flex;
+    }
+}
+/* Base Body Styles */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #222;
+    color: #fff;
+}
+
+/* Main Application Container */
+#app-container {
+    display: flex;
+    align-items: stretch;
+    min-height: 100vh;
+    overflow-y: scroll;
+}
+
+/* Input Controls Section */
+#inputControls {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 16px;
+    height: 80vh;
+    width: 250px;
+    margin: 3vh 1px 0 1px;
+    background-color: #333;
+}
+
+/* Buttons and Inputs within Input Controls */
+#inputControls button, #inputControls input, #inputControls select {
+    background-color: #444;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    margin: 3vh 0;
+    width: 100%;
+}
+
+#left-side {
+    flex-direction: column;
+    align-items: flex-start;  /* Or another suitable value */
+}
+
+/* Map Area */
+#map {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    flex: 2;
+    margin: 3vh 0 1vh 0;
+    width: 80vw;
+    height: 60vh;
+}
+
+#uploadProjectFile {
+    display: none;
+}
+
+/* Table for Markers */
+#markerTable {
+    border-collapse: collapse;
+    width: 100%;
+    max-height: 20vh;
+    overflow-y: auto;
+}
+
+#markerTable thead {
+    background-color: #f2f2f2;
+}
+
+#markerTable thead th {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+#markerTable tbody td {
+    text-align: left;
+    color: #fff;
+    overflow-y: auto;
+}
+
+/* Sidebar Styles */
+#sidebar {
+    display: flex;
+    flex-direction: column;
+    background-color: #333;
+    color: #fff;
+    padding: 16px;
+    text-align: center;
+    min-width: 250px;
+    transition: width 0.3s;
+}
+/* Right Side Container */
+#right-side {
+    flex: 1;
+    padding: 16px;
+}
+
+/* General Modal Styles */
+.modal, .modal1 {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 75%;
+    top: 75%;
+    pointer-events: auto;
+    transform: translate(-50%, -50%);
+}
+
+/* Specific Modal Background Colors */
+.modal {
+    background-color: transparent;
+}
+.modal1 {
+    background-color: grey;
+}
+
+/* Modal Content */
+.modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #2c2c2c;
+    color: #fff;
+    padding: 16px;
+    border: 1px solid #444;
+    width: 40vw;
+    height: 50vh;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+/* Modal Header */
+.modal-header {
+    width: 80%;
+    padding: 16px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+}
+
+/* Modal Body */
+.modal-body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Other Modal Elements */
+.modal-open, .close {
+    pointer-events: auto;
+}
+
+.close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 24px;
+    color: #fff;
+    cursor: pointer;
+}
+
+@media screen and (max-width: 600px) {
+    .modal-content {
+        width: 90%;
+        height: 90%;
+    }
+}
+
+/* Existing Sidebar Elements */
+#projectList, #inputControls input, #inputControls button, #inputControls select {
+    width: 100%;
+    margin-top: 16px;
+}
+
+/* Splash Overlay */
+#splash-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+/* Keyframes for the fadeIn animation */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+/* Style for the popup input fields */
+.popup-input {
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 14px;
+}
+
+/* Style for the popup button */
+.popup-button {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+/* Style for the popup button on hover */
+.popup-button:hover {
+    background-color: #0056b3;
+}
+#showContourPlotBtn {
+    background-color: #007BFF;  /* Set your desired color here */
+    color: white;  /* Set your desired text color here */
+}
+/* Style for the "Show Contour Plot" button */
+.show-contour-plot-button {
+ display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content:  flex-start;
+    background-color: #007BFF;  /* Set your desired background color here */
+    color: white;  /* Set your desired text color here */
+    padding: 10px 20px;  /* Adjust padding as needed */
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+margin-left: 2vw;
+margin-top: 1vw;
+max-width:10vw;
+min-width:9vw;
+}
+
+/* Style for the "Show Contour Plot" button on hover */
+.show-contour-plot-button:hover {
+    background-color: #0056b3;  /* Set your desired hover color here */
+}
+#hide{
+    color: transparent;
+}
+/* Updated Style for the map layer toggle switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    max-width:5vw;
+    max-height:3vh;
+margin-left:.5vw;
+margin-top:2vh;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+margin-left:1vw;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    max-width:3vw;
+    max-height:3vh;
+    font-size: 10px;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 34px;
+margin-left:1vw;
+    /* transform: rotate(180deg);  <- Remove or comment out this line */
+}
+
+.slider:before {
+    position: absolute;
+    font-size: 10px;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 30px; /* Adjust the left position to center the button */
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+    transform: translateX(-30px); /* Position of the slider button when the switch is ON */
+
+    border-radius: 50%;
+    transform: translateX(0); /* Initialize the button on the left side */
+}
+
+input:checked + .slider {
+    background-color: #007BFF; /* Background color when the switch is ON */
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #007BFF; /* Box shadow when the switch is focused */
+}
+
+input:checked + .slider:before {
+    transform: translateX(-30px); /* Position of the slider button when the switch is ON */
+}
+.slider.satellite-active {
+    background-color: #007BFF;
+}
+
+/* Style for the label next to the toggle switch */
+.toggle-label {
+display:flex;
+flex-direction:row;
+    margin-left: 10px;
+    color: white;
+    font-size: 12px;
+margin-left:1vw;
+margin-top:.5vh;
+}
+    </style>
+</head>
+<body>
+<div id="splash-overlay">
+    <img src="https://github.com/Latticeworks1/Hydro-Matic/blob/main/splash.png?raw=true" alt="Splash Image">
+</div>
+    <!-- New Navbar Section -->
+    <nav id="navbar">
+<div class="nav-logo">
+  <img src="https://example.com/logo.png" alt="Company Logo" style="height:40px;">
+</div>
+
+        <ul class="nav-links">
+<div id="mapToggle" class="switch">
+<input type="checkbox" id="mapToggleCheckbox" checked>
+    <label for="mapToggleCheckbox" class="slider round"></label>
+    <span class="toggle-label">Satellite</span>
+</div>
+
+<button id="showContourPlotBtn" class="show-contour-plot-button">Show Contour Plot</button>
+
+            <li><a href="#">Home</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Contact</a></li>
+          <li><a   <button id="authBtn">Sign-in/up</button></a></li>
+            <input type="file" id="uploadProjectFile" accept=".json"  class="hide">
+        </ul>
+        <div class="menu-toggle" id="mobile-menu">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </div>
+    </nav>
+<div id="app-container">
+<!-- Add this inside the <nav> or any other appropriate location in your HTML structure -->
+
+
+    <sidebar>
+
+     <div id="inputControls">
+
+    <!-- User info section -->
+    <div id="userInfo" style="display: none;">
+        <p>Welcome, <span id="usernameDisplay"></span>!</p>
+    </div>
+
+            <button id="createProjectBtn">Create New Project</button>
+            <button id="loadMapDataBtn">Load Data</button>
+
+            
+            <button id="exportMapDataBtn">Save Map</button>
+            <div id="contourPlotModal" class="modal">
+    <div class="modal-content" id="draggableModal">
+        <span class="close" id="closeContourPlot">&times;</span>
+        <div id="contourPlotContainer">
+            <div id="contourPlot"></div>
+        </div>
+    </div>
+</div>
+    <!-- Label and select for project list -->
+    <label for="projectList">Project List:</label>
+    <select id="projectList"></select>
+
+    <!-- Label and input for project number -->
+    <label for="projectNumberInput">Project Number:</label>
+    <input type="text" id="projectNumberInput" placeholder="Project Number">
+
+    <!-- Label and input for project name -->
+    <label for="projectNameInput">Project Name:</label>
+    <input type="text" id="projectNameInput" placeholder="Project Name">
+
+    <!-- Label and input for map ID -->
+    <label for="mapNameInput">Map ID:</label>
+    <input type="text" id="mapNameInput" placeholder="Map ID">
+
+        </div>
+<div id="userInfo" style="display: none;">
+    <p>Welcome, <span id="usernameDisplay"></span>!</p>
+</div>
+
+
+
+            <div id="3DScatterPlotModal" class="modal">
+<div id="scatter3DPlotModal" class="modal draggable">
+    <div class="modal-content">
+        <span class="close" id="closeScatter3DPlot">&times;</span>
+        <div id="scatter3DPlot"></div>
+    </div>
+</div>
+
+<div class="modal-content" id="draggableModal">
+                    <span class="close" id="close3DScatterPlot">&times;</span></div>
+</div>
+    </sidebar>
+    <div id="left-side">
+        <div id="map"></div>
+        <table id="markerTable" class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Well ID</th>
+                    <th>Elevation</th>
+                    <th>Latitude</th>
+                    <th>Longitude</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+            </tbody>
+        </table>
+    </div>
+    <div id="right-side" class="flex-item">
+        <!-- Add your content here -->
+    </div>
+</div>
+
+<!-- Sign-in Modal -->
+<div id="signInModal" class="modal1">
+    <div class="modal-content">
+        <span class="close" id="closeSignIn">&times;</span>
+        <h2>Sign In</h2>
+        <label for="signInUsername">Username:</label>
+        <input type="text" id="signInUsername" placeholder="Enter your username">
+        <label for="signInPassword">Password:</label>
+        <input type="password" id="signInPassword" placeholder="Enter your password">
+        <button id="signInButton">Sign In</button>
+    <button id="openSignUp">Sign Up</button>
+    </div>
+</div>
+
+<!-- Sign-up Modal -->
+<div id="signUpModal" class="modal1">
+    <div class="modal-content">
+        <span class="close" id="closeSignUp">&times;</span>
+        <h2>Sign Up</h2>
+        <label for="signUpUsername">Username:</label>
+        <input type="text" id="signUpUsername" placeholder="Choose a username">
+        <label for="signUpPassword">Password:</label>
+        <input type="password" id="signUpPassword" placeholder="Choose a password">
+        <button id="signUpButton">Sign Up</button>
+    </div>
+</div>
+<!-- User Info Display -->
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+
+document.addEventListener('DOMContentLoaded', () => {
+  const menuToggle = document.getElementById("mobile-menu");
+  const navLinks = document.querySelector(".nav-links");
+
+  menuToggle.addEventListener('click', () => {
+    navLinks.classList.toggle('active');
+  });
+});
+/// Function to send an AJAX request to the server for user authentication
+function authenticate(username, password) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', 'https://neftyartstudio.com/auth_master.php', true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                const response = xhr.responseText.trim();
+                if (response === 'success') {
+                    // Authentication successful
+                    closeSignIn(); // Close the sign-in modal
+                    showUserInfo(username);
+                } else {
+                    // Authentication failed, show an error message
+                    alert('Authentication failed. Please check your credentials.');
+                }
+            } else {
+                // Handle other HTTP status codes (e.g., 400 Bad Request, 500 Internal Server Error)
+                alert('An error occurred during authentication. Please try again later.');
+            }
+        }
+    };
+
+    // Send the request with username and password
+    const data = `action=login&username=${username}&password=${password}`;
+    xhr.send(data);
+}
+    // Function to open the sign-in modal
+    function openSignIn() {
+        const signInModal = document.getElementById("signInModal");
+        signInModal.style.display = "block";
+    }
+
+    // Function to close the sign-in modal
+    function closeSignIn() {
+        const signInModal = document.getElementById("signInModal");
+        signInModal.style.display = "none";
+    }
+
+    // Function to open the sign-up modal
+    function openSignUp() {
+        const signUpModal = document.getElementById("signUpModal");
+        signUpModal.style.display = "block";
+    }
+
+    // Function to close the sign-up modal
+    function closeSignUp() {
+        const signUpModal = document.getElementById("signUpModal");
+        signUpModal.style.display = "none";
+    }
+
+    // Event listener for the "Sign-in/up" button
+    document.getElementById("authBtn").addEventListener("click", () => {
+        openSignIn(); // Open the sign-in modal
+    });
+
+    // Event listeners for closing modals
+    document.getElementById("closeSignIn").addEventListener("click", () => {
+        closeSignIn(); // Close the sign-in modal
+    });
+
+    document.getElementById("closeSignUp").addEventListener("click", () => {
+        closeSignUp(); // Close the sign-up modal
+    });
+// Event listener for opening the sign-up modal from the sign-in modal
+document.getElementById("openSignUp").addEventListener("click", () => {
+    closeSignIn(); // Close the sign-in modal
+    openSignUp(); // Open the sign-up modal
+});
+
+// Function to display user info and change buttons
+function showUserInfo(username) {
+    const signInModal = document.getElementById("signInModal");
+    const signUpModal = document.getElementById("signUpModal");
+    const userInfo = document.getElementById("userInfo");
+
+    // Hide sign-in and sign-up modals
+    signInModal.style.display = "none";
+    signUpModal.style.display = "none";
+
+    // Display user info
+    const usernameDisplay = document.getElementById("usernameDisplay");
+    usernameDisplay.textContent = username;
+    userInfo.style.display = "block";
+}
+
+/// Function to handle the sign-up process
+function signUp() {
+    const signUpUsername = document.getElementById("signUpUsername").value;
+    const signUpPassword = document.getElementById("signUpPassword").value;
+
+    // Validate username and password (you can add more validation as needed)
+    if (signUpUsername.trim() === "" || signUpPassword.trim() === "") {
+        alert("Please enter a valid username and password.");
+        return;
+    }
+
+    // Call the function to register the user
+    registerUser(signUpUsername, signUpPassword);
+}
+
+// Function to send an AJAX request to the server for user registration
+function registerUser(username, password) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', 'https://neftyartstudio.com/auth_master.php', true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                const response = xhr.responseText.trim();
+                if (response === 'success') {
+                    // Registration successful
+                    alert('Registration successful. You can now sign in.');
+                    closeSignUp(); // Close the sign-up modal
+                } else {
+                    // Registration failed, show an error message
+                    alert('Registration failed. Please try again.');
+                }
+            } else {
+                // Handle other HTTP status codes (e.g., 400 Bad Request, 500 Internal Server Error)
+                alert('An error occurred during registration. Please try again later.');
+            }
+        }
+    };
+
+    // Send the request with username and password
+    const data = `action=register&username=${username}&password=${password}`;
+    xhr.send(data);
+}
+
+// Event listener for the "Sign Up" button in the sign-up modal
+document.getElementById("signUpButton").addEventListener("click", () => {
+    signUp(); // Call the signUp function when the "Sign Up" button is clicked
+});
+  // Function to hide the splash overlay after a delay or when the page is fully loaded
+setTimeout(function () {
+    var splashOverlay = document.getElementById("splash-overlay");
+    if (splashOverlay) {
+        splashOverlay.style.opacity = "0";
+        setTimeout(function(){
+            splashOverlay.style.display = "none";
+        }, 750);  // Match the duration of the fade-out with the one specified in CSS
+    }
+}, 1000);  // 3000 milliseconds = 3 seconds
+
+function exportMapData() {
+    console.log("Export button clicked");  // Debugging line
+
+    // Get project details
+    const projectNumber = document.getElementById("projectNumberInput").value;
+    const projectName = document.getElementById("projectNameInput").value;
+    const mapName = document.getElementById("mapNameInput").value;
+
+    // Combine project details with marker data
+    const exportData = {
+        projectNumber: projectNumber,
+        projectName: projectName,
+        mapName: mapName,
+        markerData: markerData // Assuming markerData is your existing array
+    };
+
+    // Check if marker data is available
+    if (markerData && markerData.length > 0) {
+        // Create a Blob with the combined data as JSON
+        const blob = new Blob([JSON.stringify(exportData)], { type: 'application/json' });
+
+        // Create a download link
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `${projectNumber}_${mapName}.json`;
+
+        // Trigger a click event to download the file
+        a.click();
+    } else {
+        console.log("markerData is empty or not initialized");
+    }
+}
+        // Declare global variables for map, markers, and modal state
+        let map;
+        let markerData = [];
+        let markers = [];
+        let modalOpen = false;
+
+        // Initialize application after window load
+        window.addEventListener("load", initialize);
+
+        /**
+         * Main Initialization Function
+         */
+        function initialize() {
+            // Initialize map and load markers
+            map = initializeMap();
+            markerData = loadMarkersFromLocalStorage();
+            markers = [];
+
+            // Add existing markers to map
+            markerData.forEach(coord => addMarker(coord));
+
+            // Attach event handlers
+            map.on('click', handleMapClick);
+            document.getElementById("showContourPlotBtn").addEventListener("click", showContourPlot);
+            document.getElementById("closeContourPlot").addEventListener("click", hideContourPlot);
+            
+            // Make contour plot modal draggable
+            dragElement(document.getElementById("draggableModal"));
+
+            // Listen to map zoom and move events to update contour plot
+            map.on('moveend zoomend', function() {
+                if (modalOpen) {
+                    drawContourPlot();
+                }
+            });
+            
+            // Initialize the table with marker data
+            updateTable();
+        }
+
+        /**
+         * Initialize the Leaflet map.
+         * @returns {object} Initialized map object.
+         */
+function initializeMap() {
+    // Initialize Leaflet map and set view
+    const map = L.map('map').setView([51.505, -0.09], 13);
+
+    // Define the tile layers for the street map and Esri satellite imagery
+    const streetMapLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    });
+
+    const esriSatelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+    });
+
+    // Create an object with the available tile layers
+    const baseLayers = {
+        "Street Map": streetMapLayer,
+        "Esri Satellite": esriSatelliteLayer
+    };
+
+    // Add the Esri satellite layer as the default layer
+    esriSatelliteLayer.addTo(map);
+
+    // Add a layer control to the map, allowing users to switch between layers
+    L.control.layers(baseLayers).addTo(map);
+
+    // Initialize the map toggle checkbox and event listener
+    const mapToggleCheckbox = document.getElementById("mapToggleCheckbox");
+    mapToggleCheckbox.checked = true; // Initialize checkbox to checked (Satellite ON)
+
+    mapToggleCheckbox.addEventListener("change", function () {
+        if (mapToggleCheckbox.checked) {
+            // Switch to the Esri satellite layer
+            map.removeLayer(streetMapLayer);
+            esriSatelliteLayer.addTo(map);
+        } else {
+            // Switch back to the street map layer
+            map.removeLayer(esriSatelliteLayer);
+            streetMapLayer.addTo(map);
+        }
+    });
+
+    return map;
+}
+
+/**
+ * Handle click events on the map to add new markers.
+ * @param {Event} e - Leaflet click event object.
+ */
+function handleMapClick(e) {
+    const wellIDInput = document.createElement("input");
+    wellIDInput.type = "text";
+    wellIDInput.placeholder = "Enter Well ID";
+    wellIDInput.className = "popup-input"; // Add a class for styling
+
+    const elevationInput = document.createElement("input");
+    elevationInput.type = "number";
+    elevationInput.placeholder = "Enter Elevation";
+    elevationInput.className = "popup-input"; // Add a class for styling
+
+    const addButton = document.createElement("button");
+    addButton.textContent = "Add Marker";
+    addButton.className = "popup-button"; // Add a class for styling
+    addButton.addEventListener("click", () => {
+        const wellID = wellIDInput.value.trim();
+        const elevation = parseFloat(elevationInput.value.trim());
+
+        if (wellID === "") {
+            alert("Please enter a Well ID.");
+            return;
+        }
+
+        // Process coordinates and add marker with Well ID and elevation
+        const coord = { lat: e.latlng.lat, lng: e.latlng.lng, elevation: elevation, wellID: wellID };
+        addMarker(coord);
+        markerData.push(coord);
+        saveMarkersToLocalStorage();
+        updateTable();
+    });
+
+    // Create a popup with input fields for Well ID and elevation
+    const popupContent = document.createElement("div");
+    popupContent.appendChild(wellIDInput);
+    popupContent.appendChild(elevationInput);
+    popupContent.appendChild(addButton);
+
+    L.popup()
+        .setLatLng(e.latlng)
+        .setContent(popupContent)
+        .openOn(map);
+}
+// Function to add a new marker to the map
+function addMarker(coord) {
+    // Create a custom popup content with the new format
+    const popupContent = document.createElement("div");
+    popupContent.innerHTML = `
+        <p><strong>Well ID:</strong> ${coord.wellID}</p>
+        <p><strong>Coordinates:</strong> ${coord.lat}, ${coord.lng}</p>
+        <p><strong>Elevation:</strong> ${coord.elevation}</p>
+    `;
+
+    // Create and add marker to the map with the custom popup content
+    const marker = L.marker([coord.lat, coord.lng])
+        .addTo(map)
+        .bindPopup(popupContent)
+        .openPopup();
+
+    // Add right-click event listener to remove marker
+    marker.on('contextmenu', function (e) {
+        const index = markers.indexOf(this);
+        removeMarker(index);
+    });
+
+    // Add marker to the global markers array
+    markers.push(marker);
+}
+// Function to load markers data from local storage
+function loadMarkersFromLocalStorage() {
+    // Fetch saved markers from local storage and parse the JSON data
+    const savedData = localStorage.getItem("markerData");
+    return savedData ? JSON.parse(savedData) : [];
+}
+
+// Function to save current markers data to local storage
+function saveMarkersToLocalStorage() {
+    // Convert markers data to JSON and save to local storage
+    localStorage.setItem("markerData", JSON.stringify(markerData));
+}
+// Event listener for the "Load Map Data" button
+document.getElementById("loadMapDataBtn").addEventListener("click", () => {
+    // Trigger the file input click event when the "Load Data" button is clicked
+    document.getElementById("uploadProjectFile").click();
+});
+
+// Event listener for the file input change event
+document.getElementById("uploadProjectFile").addEventListener("change", (event) => {
+    const file = event.target.files[0]; // Get the selected file
+
+    if (!file) {
+        console.log("No file selected.");
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        try {
+            const projectDataFromFile = JSON.parse(e.target.result);
+
+            if (projectDataFromFile && projectDataFromFile.markerData) {
+                // Clear existing markers on the map
+                clearMapMarkers();
+
+                // Load markers from the projectDataFromFile
+                markerData = projectDataFromFile.markerData;
+
+                // Add loaded markers to the map
+                markerData.forEach(coord => addMarker(coord));
+
+                // Update the table with the loaded marker data
+                updateTable();
+
+                // Optionally, perform other actions based on the loaded project data
+            } else {
+                console.log("Invalid project data.");
+            }
+        } catch (error) {
+            console.error("Error parsing project data:", error);
+        }
+    };
+
+    reader.readAsText(file);
+});
+
+function updateTable() {
+    const tableBody = document.getElementById("tableBody");
+    tableBody.innerHTML = "";
+
+    markerData.forEach((coord, index) => {
+        const row = tableBody.insertRow();
+        const wellIDCell = row.insertCell(0); // Add a cell for Well ID
+        const elevCell = row.insertCell(1);
+        const latCell = row.insertCell(2);
+        const lngCell = row.insertCell(3);
+        wellIDCell.innerHTML = `<input type="text" id="wellIDInput${index}" value="${coord.wellID}" onchange="updateWellID(${index}, this.value)">`; // Input field for Well ID
+        const actionCell = row.insertCell(4); // Adjust the index for the action cell
+
+        latCell.textContent = coord.lat;
+        lngCell.textContent = coord.lng;
+
+        const elevationInput = document.createElement("input");
+        elevationInput.type = "number";
+        elevationInput.value = coord.elevation;
+        elevationInput.addEventListener("change", function () {
+            coord.elevation = parseFloat(this.value);
+            saveMarkersToLocalStorage();
+            markers[index].bindPopup(`Coordinates: ${coord.lat}, ${coord.lng}, Elevation: ${coord.elevation}, Well ID: ${coord.wellID}`).openPopup();
+            drawContourPlot(); // Redraw the contour plot on elevation change
+        });
+        elevCell.appendChild(elevationInput);
+
+        const removeButton = document.createElement("button");
+        removeButton.textContent = "Remove";
+        removeButton.addEventListener("click", () => removeMarker(index));
+        actionCell.appendChild(removeButton);
+    });
+}
+
+function updateWellID(index, newWellID) {
+    markerData[index].wellID = newWellID;
+    saveMarkersToLocalStorage();
+    markers[index].bindPopup(`Coordinates: ${markerData[index].lat}, ${markerData[index].lng}, Elevation: ${markerData[index].elevation}, Well ID: ${newWellID}`).openPopup();
+}
+
+    function removeMarker(index) {
+        const markerToRemove = markers[index];
+        if (markerToRemove) {
+            markerToRemove.remove();
+        }
+
+        markers.splice(index, 1);
+        markerData.splice(index, 1);
+        updateTable();
+        saveMarkersToLocalStorage();
+        drawContourPlot(); // Redraw the contour plot on marker removal
+    }
+
+// Function to show the modal
+function showContourPlot() {
+    const modal = document.getElementById("contourPlotModal");
+
+    // Open the modal
+    modal.style.display = "block";
+    modalOpen = true;
+
+    // Make the modal draggable (You're already doing this)
+    dragElement(modal);
+
+    // Redraw the contour plot when opening the modal (You're already doing this)
+    drawContourPlot();
+}
+
+// Function to hide the modal
+function hideContourPlot() {
+    const modal = document.getElementById("contourPlotModal");
+
+    // Close the modal
+    modal.style.display = "none";
+    modalOpen = false;
+}
+
+// Make the DIV element draggable:
+dragElement(document.getElementById("draggableModal"));
+
+function dragElement(elmnt) {
+  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  elmnt.onmousedown = dragMouseDown;
+
+  function dragMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    document.onmousemove = elementDrag;
+  }
+
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+  }
+
+  function closeDragElement() {
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
+}
+function drawContourPlot() {
+    const latitudes = markerData.map(coord => coord.lat);
+    const longitudes = markerData.map(coord => coord.lng);
+    const elevations = markerData.map(coord => coord.elevation);
+
+    const bounds = map.getBounds();
+    
+    const maxLat = bounds.getNorth();
+    const minLat = bounds.getSouth();
+    const maxLng = bounds.getEast();
+    const minLng = bounds.getWest();
+
+    // Create a scatter plot for the map markers
+    const markerTrace = {
+        x: longitudes,
+        y: latitudes,
+        mode: 'markers',
+        type: 'scatter',
+        marker: {
+            size: 8,
+            color: 'blue', // You can change the color as desired
+            symbol: 'circle',
+        },
+        name: 'Markers'
+    };
+
+    // Create a contour plot for elevations
+    const contourTrace = {
+        x: longitudes,
+        y: latitudes,
+        z: elevations,
+        type: 'contour',
+        colorscale: 'Viridis', // You can choose a different colorscale
+        zmin: Math.min(...elevations),
+        zmax: Math.max(...elevations),
+        colorbar: {
+            title: 'Elevation'
+        },
+        contours: {
+            coloring: 'heatmap'
+        },
+        name: 'Elevation'
+    };
+
+    const data = [markerTrace, contourTrace];
+
+    const layout = {
+        xaxis: { 
+            title: 'Longitude',
+            range: [minLng, maxLng],
+            tickcolor: 'white',
+            tickfont: {
+                color: 'white',
+            },
+            titlefont: {
+                color: 'white',
+            },
+            linecolor: 'white',
+            gridcolor: 'white' // Or any other shade of gray or color you'd like for the grid lines
+        },
+        yaxis: { 
+            title: 'Latitude',
+            range: [minLat, maxLat],
+            tickcolor: 'white',
+            tickfont: {
+                color: 'white',
+            },
+            titlefont: {
+                color: 'white',
+            },
+            linecolor: 'white',
+            gridcolor: 'white' // Or any other shade of gray or color you'd like for the grid lines
+        },
+        paper_bgcolor: 'rgba(0,0,0,0)',  // Transparent background
+        plot_bgcolor: 'rgba(0,0,0,0)',  // Transparent background
+    };
+
+    if (modalOpen) {
+        Plotly.newPlot('contourPlot', data, layout);
+    }
+}
+// Declare an array to store project data
+let projectData = [];
+
+// Function to create a new project
+function createNewProject() {
+    const projectNumber = document.getElementById("projectNumberInput").value;
+    const projectName = document.getElementById("projectNameInput").value;
+    const mapName = document.getElementById("mapNameInput").value;
+
+    // Create a new project object
+    const newProject = {
+        projectNumber: projectNumber,
+        projectName: projectName,
+        mapName: mapName,
+        mapData: [] // You can add map data associated with the project here
+    };
+
+    // Store the project data in an array
+    projectData.push(newProject);
+
+    // Store the project data in local storage
+    localStorage.setItem("projectData", JSON.stringify(projectData));
+
+    // Update the UI to display the list of projects
+    updateProjectList();
+
+    // Optionally, clear the input fields or perform other actions
+    document.getElementById("projectNumberInput").value = "";
+    document.getElementById("projectNameInput").value = "";
+    document.getElementById("mapNameInput").value = "";
+}
+
+// Function to update the UI with the list of projects
+function updateProjectList() {
+    const projectList = document.getElementById("projectList");
+    projectList.innerHTML = "";
+
+    // Loop through the projectData array and create options for each project
+    projectData.forEach((project, index) => {
+        const option = document.createElement("option");
+        option.value = index; // Use the index as a value or unique identifier
+        option.textContent = project.projectName; // Display the project name
+        projectList.appendChild(option);
+    });
+}
+
+// Event listener for creating a new project
+document.getElementById("createProjectBtn").addEventListener("click", createNewProject);
+
+// Event listener for selecting a project
+document.getElementById("projectList").addEventListener("change", loadProjectMapData);
+
+
+// Function to load map data for the selected project
+function loadProjectMapData() {
+    const projectList = document.getElementById("projectList");
+    const selectedProjectIndex = projectList.value;
+
+    if (selectedProjectIndex !== "") {
+        // Load the map data associated with the selected project
+        const selectedProject = projectData[selectedProjectIndex];
+
+        // Clear existing markers on the map
+        clearMapMarkers();
+
+        // Load markers from the selected project's mapData
+        markerData = selectedProject.mapData;
+        
+        // Add loaded markers to the map
+        markerData.forEach(coord => addMarker(coord));
+
+        // Update the table with the loaded marker data
+        updateTable();
+
+        // Optionally, perform other actions or updates based on the loaded project data
+    }
+}
+
+// Function to clear existing markers on the map
+function clearMapMarkers() {
+    markers.forEach(marker => {
+        marker.remove();
+    });
+    markers = [];
+}
+
+// Event listener for selecting a project
+document.getElementById("projectList").addEventListener("change", loadProjectMapData);
+
+// Function to create a new project
+function createNewProject() {
+    const projectNumber = document.getElementById("projectNumberInput").value;
+    const projectName = document.getElementById("projectNameInput").value;
+    const mapName = document.getElementById("mapNameInput").value;
+
+    // Create a new project object
+    const newProject = {
+        projectNumber: projectNumber,
+        projectName: projectName,
+        mapName: mapName,
+        mapData: markerData // Assuming markerData is the map data for this project
+    };
+
+    // Store the project data in an array
+    projectData.push(newProject);
+
+    // Store the project data in local storage
+    localStorage.setItem("projectData", JSON.stringify(projectData));
+
+    // Update the UI to display the list of projects
+    updateProjectList();
+
+    // Optionally, clear the input fields or perform other actions
+    document.getElementById("projectNumberInput").value = "";
+    document.getElementById("projectNameInput").value = "";
+    document.getElementById("mapNameInput").value = "";
+}
+
+// Event listener for creating a new project
+document.getElementById("createProjectBtn").addEventListener("click", createNewProject);
+
+// Function to update the UI with the list of projects
+function updateProjectList() {
+    const projectList = document.getElementById("projectList");
+    projectList.innerHTML = "";
+
+    // Loop through the projectData array and create options for each project
+    projectData.forEach((project, index) => {
+        const option = document.createElement("option");
+        option.value = index; // Use the index as a value or unique identifier
+        option.textContent = project.projectName; // Display the project name
+        projectList.appendChild(option);
+    });
+}
+
+// Add event listeners for the "Export Map Data" and "Load Map Data" buttons
+document.getElementById("exportMapDataBtn").addEventListener("click", exportMapData);
+document.getElementById("loadMapDataBtn").addEventListener("click", loadProjectFromFile);
+
+// Function to load project data from a JSON file
+function loadProjectFromFile() {
+    const fileInput = document.getElementById("uploadProjectFile");
+    const file = fileInput.files[0];
+
+    if (!file) {
+        console.log("No file selected.");
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        try {
+            const projectDataFromFile = JSON.parse(e.target.result);
+
+            if (projectDataFromFile && projectDataFromFile.markerData) {
+                // Clear existing markers on the map
+                clearMapMarkers();
+
+                // Load markers from the projectDataFromFile
+                markerData = projectDataFromFile.markerData;
+
+                // Add loaded markers to the map
+                markerData.forEach(coord => addMarker(coord));
+
+                // Update the table with the loaded marker data
+                updateTable();
+
+                // Optionally, perform other actions based on the loaded project data
+            } else {
+                console.log("Invalid project data.");
+            }
+        } catch (error) {
+            console.error("Error parsing project data:", error);
+        }
+    };
+
+    reader.readAsText(file);
+}
+
+// Initialize the projectData array from local storage if available
+const storedProjectData = localStorage.getItem("projectData");
+if (storedProjectData) {
+    projectData = JSON.parse(storedProjectData);
+    updateProjectList(); // Update the project list on page load
+}
+
+map.on('moveend', function() {
+    // Fetch new bounds and redraw contour
+    drawContourPlot();
+});
+</script>
+</body>
+</html>
+
