@@ -7,36 +7,46 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <style>
-/* == Base Styles == */
-body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    background-color: #222;
-    color: #fff;
+<style>
+/* Base Styles */
+:root {
+    --background-color: #222;
+    --text-color: #fff;
+    --primary-color: #007BFF;
+    --secondary-color: #0056b3;
+    --navbar-background: #333;
+    --button-background: #444;
 }
 
-/* == Navbar Styles == */
+/* Global Styles */
+body, button, input, select {
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+/* Accessibility */
+[role="button"], [role="menuitem"] {
+    cursor: pointer;
+}
+
+/* Navbar Styles */
 #navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #333;
-    color: #fff;
+    background-color: var(--navbar-background);
+    color: var(--text-color);
     padding: 16px 32px;
     width: 100%;
-    flex-direction: row; /* Set to row layout */
-    flex-wrap: wrap; /* Allow items to wrap on smaller screens */
 }
 
 #navbar .nav-logo {
     cursor: pointer;
-    flex-grow: 1; /* Take up available space */
-}
-
-#navbar .nav-logo img {
-    height: 40px;
+    flex-grow: 1;
 }
 
 #navbar .nav-links {
@@ -44,7 +54,7 @@ body {
     display: flex;
     align-items: center;
     gap: 5px;
-    margin-left: auto; /* Push buttons to the right end */
+    margin-left: auto;
 }
 
 #navbar .nav-links li {
@@ -52,7 +62,7 @@ body {
 }
 
 #navbar .nav-links a {
-    color: #fff;
+    color: var(--text-color);
     text-decoration: none;
     font-size: 18px;
     padding: 8px 16px;
@@ -63,7 +73,7 @@ body {
 }
 
 #navbar .bar {
-    background-color: #fff;
+    background-color: var(--text-color);
     margin: 3px 0;
     width: 25px;
     height: 3px;
@@ -72,33 +82,21 @@ body {
 /* Responsive Design for Mobile */
 @media screen and (max-width: 768px) {
     #navbar {
-        flex-direction: column; /* Switch to column layout on smaller screens */
+        flex-direction: column;
         text-align: center;
     }
 
     #navbar .nav-links {
-        margin-left: 0; /* Reset margin for centered alignment */
-        margin-top: 16px; /* Add top margin for spacing */
-    }
-    
-    #navbar .nav-links.active {
-        display: flex;
+        margin-left: 0;
+        margin-top: 16px;
     }
 
     #navbar .menu-toggle {
-        display: block; /* Show menu toggle icon on smaller screens */
-        margin-top: 16px; /* Add top margin to the menu toggle */
-    }
-
-    #navbar .bar {
-        background-color: #fff;
-        margin: 3px 0;
-        width: 25px;
-        height: 3px;
+        display: block;
+        margin-top: 16px;
     }
 }
-
-/* == Style for Popup Input Fields == */
+/* Styles for Popup Input Fields */
 .popup-input {
     width: 100%;
     padding: 5px;
@@ -108,17 +106,17 @@ body {
     font-size: 14px;
 }
 
-/* == Style for Popup Buttons == */
+/* Styles for Popup Buttons */
 .popup-button,
 #signInButton,
 #openSignUp,
 #signUpButton {
-    background-color: #007BFF;
-    color: white;
+    background-color: var(--primary-color);
+    color: var(--text-color);
     border: none;
     padding: 8px 16px;
-    margin: 5px 0; /* Added margin to space the buttons */
-    width: auto; /* Adjusted width to auto for dynamic sizing */
+    margin: 5px 0;
+    width: auto;
     border-radius: 3px;
     cursor: pointer;
     font-size: 16px;
@@ -126,7 +124,7 @@ body {
 
 /* Style for Modal Input Fields and Buttons */
 .modal-input-button {
-    margin-bottom: 10px; /* Adjust this value to your preference */
+    margin-bottom: 10px;
 }
 
 /* If you want to have a different margin for the last item to reduce the space above the buttons */
@@ -134,34 +132,34 @@ body {
     margin-bottom: 0;
 }
 
-/* == Style for Popup Buttons on Hover == */
+/* Styles for Popup Buttons on Hover */
 .popup-button:hover,
 #signInButton:hover,
 #openSignUp:hover,
 #signUpButton:hover {
-    background-color: #0056b3;
+    background-color: var(--secondary-color);
 }
 
-/* == Style for the "Show Contour Plot" Button == */
+/* Style for the "Show Contour Plot" Button */
 #showContourPlotBtn {
-    background-color: #007BFF;
-    color: white;
-    padding: 8px 16px; /* Added padding for better spacing */
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    padding: 8px 16px;
 }
 
-/* == Style for the "Show Contour Plot" Button on Hover == */
+/* Style for the "Show Contour Plot" Button on Hover */
 .show-contour-plot-button:hover {
-    background-color: #0056b3;
+    background-color: var(--secondary-color);
 }
 
 /* Updated Style for the Map Layer Toggle Switch */
 .switch {
     position: relative;
     display: inline-block;
-    width: 60px;  /* adjusted for better visibility */
+    width: 60px;
     height: 30px;
     margin-right: 10px;
-    vertical-align: middle;  /* align with the label */
+    vertical-align: middle;
 }
 
 .switch input {
@@ -195,7 +193,7 @@ body {
 }
 
 input:checked + .slider {
-    background-color: #007BFF;
+    background-color: var(--primary-color);
 }
 
 input:checked + .slider:before {
@@ -204,21 +202,26 @@ input:checked + .slider:before {
 
 /* Style for the Label Next to the Toggle Switch */
 .toggle-label {
-    display: inline-block;  /* adjusted to inline-block for better alignment */
-    color: white;
-    font-size: 16px;  /* made font-size a bit bigger */
-    vertical-align: middle;  /* align with the switch */
+    display: inline-block;
+    color: var(--text-color);
+    font-size: 16px;
+    vertical-align: middle;
 }
 
-/* == Main Application Container Styles == */
-#app-container {
+/* Sidebar Styles */
+#sidebar {
     display: flex;
-    align-items: stretch;
-    min-height: 100vh;
-    overflow-y: scroll;
+    flex-direction: column;
+    background-color: #333;
+    color: #fff;
+    padding: 16px;
+    text-align: center;
+    min-width: 250px;
+    transition: width 0.3s;
+    margin: 3vh 10px; /* Updated margin to create space around the sidebar */
 }
 
-/* == Input Controls Section Styles == */
+/* Input Controls Section Styles */
 #inputControls {
     display: flex;
     flex-direction: column;
@@ -233,7 +236,7 @@ input:checked + .slider:before {
 #inputControls button,
 #inputControls input,
 #inputControls select {
-    background-color: #444;
+    background-color: var(--button-background);
     color: #fff;
     border: none;
     padding: 8px 16px;
@@ -241,29 +244,40 @@ input:checked + .slider:before {
     width: 100%;
 }
 
-/* == Left Side Container Styles == */
+/* Left Side Container Styles */
 #left-side {
     flex-direction: column;
     align-items: flex-start;
 }
 
-/* == Map Area Styles == */
+/* Main Application Container Styles */
+#app-container {
+    display: flex;
+    align-items: stretch;
+ margin: 0 0px 0 10px; /* Updated margin to create space on the right side */
+    min-height: 100vh;
+    overflow-y: scroll;
+}
+
+/* Map Area Styles */
 #map {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     flex: 2;
-    margin: 3vh 0 1vh 0;
-    width: 80vw;
+    margin: 0 10px 0 0; /* Updated margin to create space on the right side */
+    width: calc(80vw - 10px); /* Adjusted width to account for the margin */
     height: 60vh;
 }
 
-/* == Table for Markers Styles == */
+/* Table for Markers Styles */
 #markerTable {
     border-collapse: collapse;
-    width: 100%;
-    max-height: 20vh;
+    width: calc(20vw - 10px); /* Adjusted width to account for the margin */
+    max-height: 60vh; /* Match the height to the map */
+    width: 80vw; /* Match the width to the map */
     overflow-y: auto;
+    margin: 0 10px 0 10px; /* Updated margin to create space on the left side */
 }
 
 #markerTable thead {
@@ -282,25 +296,7 @@ input:checked + .slider:before {
     overflow-y: auto;
 }
 
-/* == Sidebar Styles == */
-#sidebar {
-    display: flex;
-    flex-direction: column;
-    background-color: #333;
-    color: #fff;
-    padding: 16px;
-    text-align: center;
-    min-width: 250px;
-    transition: width 0.3s;
-}
-
-/* == Right Side Container Styles == */
-#right-side {
-    flex: 1;
-    padding: 16px;
-}
-
-/* == General Modal Styles == */
+/* General Modal Styles */
 .modal,
 .modal1 {
     display: none;
@@ -312,15 +308,16 @@ input:checked + .slider:before {
     transform: translate(-50%, -50%);
 }
 
-/* == Specific Modal Background Colors == */
+/* Specific Modal Background Colors */
 .modal {
     background-color: transparent;
 }
+
 .modal1 {
     background-color: grey;
 }
 
-/* == Modal Content Styles == */
+/* Modal Content Styles */
 .modal-content {
     display: flex;
     flex-direction: column;
@@ -336,7 +333,7 @@ input:checked + .slider:before {
     position: relative;
 }
 
-/* == Modal Header Styles == */
+/* Modal Header Styles */
 .modal-header {
     max-width: 80%;
     cursor: move;
@@ -348,16 +345,16 @@ input:checked + .slider:before {
     margin-bottom: 16px;
 }
 
-/* == Modal Body Styles == */
+/* Modal Body Styles */
 .modal-body {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-width: 100%;
+    width: 100%;
 }
 
-/* == Other Modal Elements Styles == */
+/* Other Modal Elements Styles */
 .modal-open,
 .close {
     pointer-events: auto;
@@ -371,13 +368,14 @@ width: 100%;
     color: #fff;
     cursor: pointer;
 }
+
 /* Updated Modal Body Styles */
 .modal-body {
     display: flex;
     flex-direction: column;
     align-items: center;
     max-width: 80%;
-    padding: 10px;  /* Optional: for some spacing */
+    padding: 10px;
 }
 
 @media screen and (max-width: 600px) {
@@ -386,8 +384,7 @@ width: 100%;
         height: 90%;
     }
 }
-
-/* == Existing Sidebar Elements Styles == */
+/* Existing Sidebar Elements Styles */
 #projectList,
 #inputControls input,
 #inputControls button,
@@ -396,7 +393,7 @@ width: 100%;
     margin-top: 10px;
 }
 
-/* == Splash Overlay Styles == */
+/* Splash Overlay Styles */
 #splash-overlay {
     position: fixed;
     top: 0;
@@ -410,7 +407,7 @@ width: 100%;
     z-index: 9999;
 }
 
-/* == Keyframes for the fadeIn Animation == */
+/* Keyframes for the fadeIn Animation */
 @keyframes fadeIn {
     0% {
         opacity: 0;
@@ -420,8 +417,7 @@ width: 100%;
     }
 }
 
-
-/* == Prevent Text Selection for Some Elements == */
+/* Prevent Text Selection for Some Elements */
 .noselect {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -430,9 +426,10 @@ width: 100%;
     -ms-user-select: none;
     user-select: none;
 }
-/* == Style for the "Add Marker" Button == */
+
+/* Style for the "Add Marker" Button */
 .add-marker-button {
-    background-color: #28a745;  /* Example: Green background */
+    background-color: #28a745;
     color: white;
     border: none;
     padding: 8px 16px;
@@ -443,11 +440,12 @@ width: 100%;
     font-size: 16px;
 }
 
-/* == Style for the "Add Marker" Button on Hover == */
+/* Style for the "Add Marker" Button on Hover */
 .add-marker-button:hover {
-    background-color: #218838;  /* Example: Darker Green on hover */
+    background-color: #218838;
 }
-/* == Contour Plot Modal Styles == */
+
+/* Contour Plot Modal Styles */
 #contourPlotModal {
     display: none;
     position: fixed;
@@ -461,23 +459,22 @@ width: 100%;
     height: 45vh;
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
     pointer-events: auto;
-    overflow: hidden; /* Hide scrollbar */
+    overflow: hidden;
 }
 
 #contourPlotContainer {
     width: 100%;
     height: 100%;
     background-color: #2c2c2c;
-    overflow: hidden; /* Hide scrollbar */
+    overflow: hidden;
 }
-    /* Add this style to set the colorscale text to white */
-    .colorbar-title-text {
-        fill: white !important;
-    }
+
+/* Add this style to set the colorscale text to white */
+.colorbar-title-text {
+    fill: white !important;
+}
     </style>
 </head>
-
-
     <!-- Splash Overlay -->
     <div id="splash-overlay">
         <img src="https://github.com/Latticeworks1/Hydro-Matic/blob/main/splash.png?raw=true" alt="Splash Image">
@@ -504,6 +501,7 @@ width: 100%;
             <li><a href="#">Contact</a></li>
             <li>
                 <button id="authBtn">Sign-in/up</button>
+            <input type="file" id="uploadProjectFile" accept=".json" class="hide">
             </li>
         </ul>
         <div class="menu-toggle" id="mobile-menu">
@@ -512,76 +510,82 @@ width: 100%;
             <span class="bar"></span>
         </div>
     </nav>
-<div id="app-container">
-    <!-- Sidebar -->
-    <sidebar>
-        <div id="inputControls">
-            <!-- User Info Section -->
-            <div id="userInfo" style="display: none;">
-                <p>Welcome, <span id="usernameDisplay"></span>!</p>
-            </div>
-            <!-- Feedback Container -->
-            <div id="feedbackContainer" style="display: none;">
-                <p id="feedbackMessage"></p>
-            </div>
+</head>
 
-            <!-- Buttons -->
-            <button id="createProjectBtn">Create New Project</button>
-            <button id="loadMapDataBtn">Load Data</button>
-            <button id="exportMapDataBtn">Save Map</button>
+<body>
+    <div id="app-container">
+        <!-- Sidebar -->
+        <aside>
+            <div id="inputControls">
+                <!-- User Info Section -->
+                <div id="userInfo" style="display: none;">
+                    <p>Welcome, <span id="usernameDisplay"></span>!</p>
+                </div>
+                <!-- Feedback Container -->
+                <div id="feedbackContainer" style="display: none;">
+                    <p id="feedbackMessage"></p>
+                </div>
 
-            <!-- Modals -->
-            <div id="contourPlotModal" class="modal">
-                <div class="modal-content" id="draggableModal">
-                    <span class="close" id="closeContourPlot">&times;</span>
-                    <div id="contourPlotContainer">
-                        <div id="contourPlot"></div>
+                <!-- Buttons -->
+                <button id="createProjectBtn">Create New Project</button>
+                <button id="loadMapDataBtn">Load Data</button>
+                <button id="exportMapDataBtn">Save Map</button>
+
+                <!-- Modals -->
+                <div id="contourPlotModal" class="modal">
+                    <div class="modal-content" id="draggableModal">
+                        <span class="close" id="closeContourPlot">&times;</span>
+                        <div id="contourPlotContainer">
+                            <div id="contourPlot"></div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div id="3DScatterPlotModal" class="modal">
-                <div class="modal-content">
-                    <span class="close" id="closeScatter3DPlot">&times;</span>
-                    <div id="scatter3DPlot"></div>
+                <div id="scatter3DPlotModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close" id="closeScatter3DPlot">&times;</span>
+                        <div id="scatter3DPlot"></div>
+                    </div>
                 </div>
+
+                <!-- Project Controls -->
+                <label for="projectList">Project List:</label>
+                <select id="projectList"></select>
+                <label for="projectNumberInput">Project Number:</label>
+                <input type="text" id="projectNumberInput" placeholder="Project Number">
+                <label for="projectNameInput">Project Name:</label>
+                <input type="text" id="projectNameInput" placeholder="Project Name">
+                <label for="mapNameInput">Map ID:</label>
+                <input type="text" id="mapNameInput" placeholder="Map ID">
             </div>
+        </aside>
 
-            <!-- Project Controls -->
-            <label for="projectList">Project List:</label>
-            <select id="projectList"></select>
-            <label for="projectNumberInput">Project Number:</label>
-            <input type="text" id="projectNumberInput" placeholder="Project Number">
-            <label for="projectNameInput">Project Name:</label>
-            <input type="text" id="projectNameInput" placeholder="Project Name">
-            <label for="mapNameInput">Map ID:</label>
-            <input type="text" id="mapNameInput" placeholder="Map ID">
+        <!-- Main Content -->
+        <main id="left-side">
+            <div id="map"></div>
+            <table id="markerTable" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Well ID</th>
+                        <th>Elevation</th>
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </main>
+
+        <!-- Right Side Content -->
+        <div id="right-side" class="flex-item">
+            <!-- Add your content here -->
         </div>
-    </sidebar>
-
-    <!-- Main Content -->
-    <div id="left-side">
-        <div id="map"></div>
-        <table id="markerTable" class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Well ID</th>
-                    <th>Elevation</th>
-                    <th>Latitude</th>
-                    <th>Longitude</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody id="tableBody">
-            </tbody>
-        </table>
     </div>
+</body>
 
-    <!-- Right Side Content -->
-    <div id="right-side" class="flex-item">
-        <!-- Add your content here -->
-    </div>
-</div>
+</html>
 
 <!-- Sign-in Modal -->
 <div id="signInModal" class="modal1 noselect">
@@ -619,8 +623,6 @@ width: 100%;
         </div>
     </div>
 </div>
-    <!-- User Info Display -->
-
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script>
