@@ -1,88 +1,14 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Advanced Leaflet Example</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico"> <!-- Add your favicon here -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<style>
-/* Navbar Styles */
-#navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #333;
-    color: #fff;
-    padding: 16px 32px;
-    width: 100%;
-}
-
-.nav-logo {
-    cursor: pointer;
-
-
-    flex-grow: 2;
-    width: 5vw;
-    height: 5vh;
-}
-
-.nav-links {
-    list-style: none;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.nav-links li {
-    margin: 0 8px;
-}
-
-.nav-links a {
-    color: #fff;
-    text-decoration: none;
-    font-size: 18px;
-    padding: 8px 16px;
-}
-
-.menu-toggle {
-    display: none;
-}
-
-.bar {
-    background-color: #fff;
-    margin: 3px 0;
-    width: 25px;
-    height: 3px;
-}
-
-/* Responsive Design */
-@media screen and (max-width: 768px) {
-    .menu-toggle {
-        display: block;
-    }
-
-    .nav-links {
-        display: none;
-        flex-direction: column;
-        align-items: flex-start;
-        width: 100%;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        background-color: #333;
-    }
-
-    .nav-links li {
-        margin: 8px 0;
-        text-align: left;
-    }
-
-    .nav-links.active {
-        display: flex;
-    }
-}
-/* Base Body Styles */
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+/* == Base Styles == */
 body {
     margin: 0;
     padding: 0;
@@ -91,7 +17,200 @@ body {
     color: #fff;
 }
 
-/* Main Application Container */
+/* == Navbar Styles == */
+#navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    color: #fff;
+    padding: 16px 32px;
+    width: 100%;
+    flex-direction: row; /* Set to row layout */
+    flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+}
+
+#navbar .nav-logo {
+    cursor: pointer;
+    flex-grow: 1; /* Take up available space */
+}
+
+#navbar .nav-logo img {
+    height: 40px;
+}
+
+#navbar .nav-links {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: auto; /* Push buttons to the right end */
+}
+
+#navbar .nav-links li {
+    margin: 0 8px;
+}
+
+#navbar .nav-links a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 18px;
+    padding: 8px 16px;
+}
+
+#navbar .menu-toggle {
+    display: none;
+}
+
+#navbar .bar {
+    background-color: #fff;
+    margin: 3px 0;
+    width: 25px;
+    height: 3px;
+}
+
+/* Responsive Design for Mobile */
+@media screen and (max-width: 768px) {
+    #navbar {
+        flex-direction: column; /* Switch to column layout on smaller screens */
+        text-align: center;
+    }
+
+    #navbar .nav-links {
+        margin-left: 0; /* Reset margin for centered alignment */
+        margin-top: 16px; /* Add top margin for spacing */
+    }
+    
+    #navbar .nav-links.active {
+        display: flex;
+    }
+
+    #navbar .menu-toggle {
+        display: block; /* Show menu toggle icon on smaller screens */
+        margin-top: 16px; /* Add top margin to the menu toggle */
+    }
+
+    #navbar .bar {
+        background-color: #fff;
+        margin: 3px 0;
+        width: 25px;
+        height: 3px;
+    }
+}
+
+/* == Style for Popup Input Fields == */
+.popup-input {
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 14px;
+}
+
+/* == Style for Popup Buttons == */
+.popup-button,
+#signInButton,
+#openSignUp,
+#signUpButton {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    margin: 5px 0; /* Added margin to space the buttons */
+    width: auto; /* Adjusted width to auto for dynamic sizing */
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+/* Style for Modal Input Fields and Buttons */
+.modal-input-button {
+    margin-bottom: 10px; /* Adjust this value to your preference */
+}
+
+/* If you want to have a different margin for the last item to reduce the space above the buttons */
+.modal-body > :last-child {
+    margin-bottom: 0;
+}
+
+/* == Style for Popup Buttons on Hover == */
+.popup-button:hover,
+#signInButton:hover,
+#openSignUp:hover,
+#signUpButton:hover {
+    background-color: #0056b3;
+}
+
+/* == Style for the "Show Contour Plot" Button == */
+#showContourPlotBtn {
+    background-color: #007BFF;
+    color: white;
+    padding: 8px 16px; /* Added padding for better spacing */
+}
+
+/* == Style for the "Show Contour Plot" Button on Hover == */
+.show-contour-plot-button:hover {
+    background-color: #0056b3;
+}
+
+/* Updated Style for the Map Layer Toggle Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;  /* adjusted for better visibility */
+    height: 30px;
+    margin-right: 10px;
+    vertical-align: middle;  /* align with the label */
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #007BFF;
+}
+
+input:checked + .slider:before {
+    transform: translateX(30px);
+}
+
+/* Style for the Label Next to the Toggle Switch */
+.toggle-label {
+    display: inline-block;  /* adjusted to inline-block for better alignment */
+    color: white;
+    font-size: 16px;  /* made font-size a bit bigger */
+    vertical-align: middle;  /* align with the switch */
+}
+
+/* == Main Application Container Styles == */
 #app-container {
     display: flex;
     align-items: stretch;
@@ -99,7 +218,7 @@ body {
     overflow-y: scroll;
 }
 
-/* Input Controls Section */
+/* == Input Controls Section Styles == */
 #inputControls {
     display: flex;
     flex-direction: column;
@@ -111,8 +230,9 @@ body {
     background-color: #333;
 }
 
-/* Buttons and Inputs within Input Controls */
-#inputControls button, #inputControls input, #inputControls select {
+#inputControls button,
+#inputControls input,
+#inputControls select {
     background-color: #444;
     color: #fff;
     border: none;
@@ -121,12 +241,13 @@ body {
     width: 100%;
 }
 
+/* == Left Side Container Styles == */
 #left-side {
     flex-direction: column;
-    align-items: flex-start;  /* Or another suitable value */
+    align-items: flex-start;
 }
 
-/* Map Area */
+/* == Map Area Styles == */
 #map {
     display: flex;
     flex-direction: column;
@@ -137,11 +258,7 @@ body {
     height: 60vh;
 }
 
-#uploadProjectFile {
-    display: none;
-}
-
-/* Table for Markers */
+/* == Table for Markers Styles == */
 #markerTable {
     border-collapse: collapse;
     width: 100%;
@@ -165,7 +282,7 @@ body {
     overflow-y: auto;
 }
 
-/* Sidebar Styles */
+/* == Sidebar Styles == */
 #sidebar {
     display: flex;
     flex-direction: column;
@@ -176,24 +293,26 @@ body {
     min-width: 250px;
     transition: width 0.3s;
 }
-/* Right Side Container */
+
+/* == Right Side Container Styles == */
 #right-side {
     flex: 1;
     padding: 16px;
 }
 
-/* General Modal Styles */
-.modal, .modal1 {
+/* == General Modal Styles == */
+.modal,
+.modal1 {
     display: none;
     position: fixed;
     z-index: 9999;
-    left: 75%;
-    top: 75%;
+    left: 50%;
+    top: 50%;
     pointer-events: auto;
     transform: translate(-50%, -50%);
 }
 
-/* Specific Modal Background Colors */
+/* == Specific Modal Background Colors == */
 .modal {
     background-color: transparent;
 }
@@ -201,7 +320,7 @@ body {
     background-color: grey;
 }
 
-/* Modal Content */
+/* == Modal Content Styles == */
 .modal-content {
     display: flex;
     flex-direction: column;
@@ -211,16 +330,16 @@ body {
     color: #fff;
     padding: 16px;
     border: 1px solid #444;
-    width: 40vw;
-    height: 50vh;
+    width: 35vw;
+    height: 45vh;
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
     position: relative;
 }
 
-/* Modal Header */
+/* == Modal Header Styles == */
 .modal-header {
-    width: 80%;
-    cursor: move; /* The cursor indicates the draggable nature */
+    max-width: 80%;
+    cursor: move;
     padding: 16px;
     background-color: #333;
     color: #fff;
@@ -229,17 +348,18 @@ body {
     margin-bottom: 16px;
 }
 
-/* Modal Body */
+/* == Modal Body Styles == */
 .modal-body {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100%;
+width: 100%;
 }
 
-/* Other Modal Elements */
-.modal-open, .close {
+/* == Other Modal Elements Styles == */
+.modal-open,
+.close {
     pointer-events: auto;
 }
 
@@ -251,6 +371,14 @@ body {
     color: #fff;
     cursor: pointer;
 }
+/* Updated Modal Body Styles */
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 80%;
+    padding: 10px;  /* Optional: for some spacing */
+}
 
 @media screen and (max-width: 600px) {
     .modal-content {
@@ -259,13 +387,16 @@ body {
     }
 }
 
-/* Existing Sidebar Elements */
-#projectList, #inputControls input, #inputControls button, #inputControls select {
+/* == Existing Sidebar Elements Styles == */
+#projectList,
+#inputControls input,
+#inputControls button,
+#inputControls select {
     width: 100%;
-    margin-top: 16px;
+    margin-top: 10px;
 }
 
-/* Splash Overlay */
+/* == Splash Overlay Styles == */
 #splash-overlay {
     position: fixed;
     top: 0;
@@ -279,7 +410,7 @@ body {
     z-index: 9999;
 }
 
-/* Keyframes for the fadeIn animation */
+/* == Keyframes for the fadeIn Animation == */
 @keyframes fadeIn {
     0% {
         opacity: 0;
@@ -288,173 +419,92 @@ body {
         opacity: 1;
     }
 }
-/* Style for the popup input fields */
-.popup-input {
-    width: 100%;
-    padding: 5px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    font-size: 14px;
-}
 
-/* Style for the popup button */
-.popup-button {
-    background-color: #007BFF;
+
+/* == Prevent Text Selection for Some Elements == */
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+/* == Style for the "Add Marker" Button == */
+.add-marker-button {
+    background-color: #28a745;  /* Example: Green background */
     color: white;
     border: none;
-    padding: 5px 10px;
+    padding: 8px 16px;
+    margin: 5px 0;
+    width: 100%;
     border-radius: 3px;
     cursor: pointer;
     font-size: 16px;
 }
 
-/* Style for the popup button on hover */
-.popup-button:hover {
-    background-color: #0056b3;
+/* == Style for the "Add Marker" Button on Hover == */
+.add-marker-button:hover {
+    background-color: #218838;  /* Example: Darker Green on hover */
 }
-#showContourPlotBtn {
-    background-color: #007BFF;  /* Set your desired color here */
-    color: white;  /* Set your desired text color here */
-}
-/* Style for the "Show Contour Plot" button */
-.show-contour-plot-button {
- display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content:  flex-start;
-    background-color: #007BFF;  /* Set your desired background color here */
-    color: white;  /* Set your desired text color here */
-    padding: 10px 20px;  /* Adjust padding as needed */
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-    font-size: 14px;
-margin-left: 2vw;
-margin-top: 1vw;
-max-width:10vw;
-min-width:9vw;
+/* == Contour Plot Modal Styles == */
+#contourPlotModal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background-color: grey;
+    border: 1px solid #444;
+    width: 35vw;
+    height: 45vh;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+    pointer-events: auto;
+    overflow: hidden; /* Hide scrollbar */
 }
 
-/* Style for the "Show Contour Plot" button on hover */
-.show-contour-plot-button:hover {
-    background-color: #0056b3;  /* Set your desired hover color here */
+#contourPlotContainer {
+    width: 100%;
+    height: 100%;
+    background-color: #2c2c2c;
+    overflow: hidden; /* Hide scrollbar */
 }
-#hide{
-    color: transparent;
-}
-/* Updated Style for the map layer toggle switch */
-.switch {
-    position: relative;
-    display: inline-block;
-    max-width:5vw;
-    max-height:3vh;
-margin-left:.5vw;
-margin-top:2vh;
-}
-
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-margin-left:1vw;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    max-width:3vw;
-    max-height:3vh;
-    font-size: 10px;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    -webkit-transition: .4s;
-    transition: .4s;
-    border-radius: 34px;
-margin-left:1vw;
-    /* transform: rotate(180deg);  <- Remove or comment out this line */
-}
-
-.slider:before {
-    position: absolute;
-    font-size: 10px;
-    content: "";
-    height: 20px;
-    width: 20px;
-    left: 30px; /* Adjust the left position to center the button */
-    bottom: 4px;
-    background-color: white;
-    -webkit-transition: .4s;
-    transition: .4s;
-    transform: translateX(-30px); /* Position of the slider button when the switch is ON */
-
-    border-radius: 50%;
-    transform: translateX(0); /* Initialize the button on the left side */
-}
-
-input:checked + .slider {
-    background-color: #007BFF; /* Background color when the switch is ON */
-}
-
-input:focus + .slider {
-    box-shadow: 0 0 1px #007BFF; /* Box shadow when the switch is focused */
-}
-
-input:checked + .slider:before {
-    transform: translateX(-30px); /* Position of the slider button when the switch is ON */
-}
-.slider.satellite-active {
-    background-color: #007BFF;
-}
-
-/* Style for the label next to the toggle switch */
-.toggle-label {
-display:flex;
-flex-direction:row;
-    margin-left: 10px;
-    color: white;
-    font-size: 12px;
-margin-left:1vw;
-margin-top:.5vh;
-}
-.noselect {
-    -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-    -khtml-user-select: none; /* Konqueror HTML */
-    -moz-user-select: none; /* Old versions of Firefox */
-    -ms-user-select: none; /* Internet Explorer/Edge */
-    user-select: none; /* Non-prefixed version, currently supported by Chrome, Opera and Firefox */
-}
-
+    /* Add this style to set the colorscale text to white */
+    .colorbar-title-text {
+        fill: white !important;
+    }
     </style>
 </head>
-<body>
-<div id="splash-overlay">
-    <img src="https://github.com/Latticeworks1/Hydro-Matic/blob/main/splash.png?raw=true" alt="Splash Image">
-</div>
-    <!-- New Navbar Section -->
+
+
+    <!-- Splash Overlay -->
+    <div id="splash-overlay">
+        <img src="https://github.com/Latticeworks1/Hydro-Matic/blob/main/splash.png?raw=true" alt="Splash Image">
+    </div>
+
+    <!-- Navigation -->
     <nav id="navbar">
-<div class="nav-logo">
-  <img src="https://github.com/Latticeworks1/Hydro-Matic/blob/main/hydromaticlogo_inverted.png?raw=true" alt="Company Logo" style="height:40px;">
-</div>
-
+        <div class="nav-logo">
+            <img src="https://github.com/Latticeworks1/Hydro-Matic/blob/main/hydromaticlogo_inverted.png?raw=true" alt="Company Logo" style="height:40px;">
+        </div>
         <ul class="nav-links">
-<div id="mapToggle" class="switch">
-<input type="checkbox" id="mapToggleCheckbox" checked>
-    <label for="mapToggleCheckbox" class="slider round"></label>
-    <span class="toggle-label">Satellite</span>
-</div>
-
-<button id="showContourPlotBtn" class="show-contour-plot-button">Show Contour Plot</button>
-
+            <li>
+                <div id="mapToggle" class="switch">
+                    <input type="checkbox" id="mapToggleCheckbox" checked>
+                    <label for="mapToggleCheckbox" class="slider round larger-slider"></label>
+                    <span class="toggle-label">Satellite</span>
+                </div>
+            </li>
+            <li>
+                <button id="showContourPlotBtn" class="show-contour-plot-button">Show Contour Plot</button>
+            </li>
             <li><a href="#">Home</a></li>
             <li><a href="#">About</a></li>
             <li><a href="#">Contact</a></li>
-          <li><a   <button id="authBtn">Sign-in/up</button></a></li>
-            <input type="file" id="uploadProjectFile" accept=".json"  class="hide">
+            <li>
+                <button id="authBtn">Sign-in/up</button>
+            </li>
         </ul>
         <div class="menu-toggle" id="mobile-menu">
             <span class="bar"></span>
@@ -463,66 +513,53 @@ margin-top:.5vh;
         </div>
     </nav>
 <div id="app-container">
-<!-- Add this inside the <nav> or any other appropriate location in your HTML structure -->
-
-
+    <!-- Sidebar -->
     <sidebar>
+        <div id="inputControls">
+            <!-- User Info Section -->
+            <div id="userInfo" style="display: none;">
+                <p>Welcome, <span id="usernameDisplay"></span>!</p>
+            </div>
+            <!-- Feedback Container -->
+            <div id="feedbackContainer" style="display: none;">
+                <p id="feedbackMessage"></p>
+            </div>
 
-     <div id="inputControls">
-
-    <!-- User info section -->
-    <div id="userInfo" style="display: none;">
-        <p>Welcome, <span id="usernameDisplay"></span>!</p>
-    </div>
-
+            <!-- Buttons -->
             <button id="createProjectBtn">Create New Project</button>
             <button id="loadMapDataBtn">Load Data</button>
-
-            
             <button id="exportMapDataBtn">Save Map</button>
+
+            <!-- Modals -->
             <div id="contourPlotModal" class="modal">
-    <div class="modal-content" id="draggableModal">
-        <span class="close" id="closeContourPlot">&times;</span>
-        <div id="contourPlotContainer">
-            <div id="contourPlot"></div>
-        </div>
-    </div>
-</div>
-    <!-- Label and select for project list -->
-    <label for="projectList">Project List:</label>
-    <select id="projectList"></select>
-
-    <!-- Label and input for project number -->
-    <label for="projectNumberInput">Project Number:</label>
-    <input type="text" id="projectNumberInput" placeholder="Project Number">
-
-    <!-- Label and input for project name -->
-    <label for="projectNameInput">Project Name:</label>
-    <input type="text" id="projectNameInput" placeholder="Project Name">
-
-    <!-- Label and input for map ID -->
-    <label for="mapNameInput">Map ID:</label>
-    <input type="text" id="mapNameInput" placeholder="Map ID">
-
-        </div>
-<div id="userInfo" style="display: none;">
-    <p>Welcome, <span id="usernameDisplay"></span>!</p>
-</div>
-
-
+                <div class="modal-content" id="draggableModal">
+                    <span class="close" id="closeContourPlot">&times;</span>
+                    <div id="contourPlotContainer">
+                        <div id="contourPlot"></div>
+                    </div>
+                </div>
+            </div>
 
             <div id="3DScatterPlotModal" class="modal">
-<div id="scatter3DPlotModal" class="modal draggable">
-    <div class="modal-content">
-        <span class="close" id="closeScatter3DPlot">&times;</span>
-        <div id="scatter3DPlot"></div>
-    </div>
-</div>
+                <div class="modal-content">
+                    <span class="close" id="closeScatter3DPlot">&times;</span>
+                    <div id="scatter3DPlot"></div>
+                </div>
+            </div>
 
-<div class="modal-content" id="draggableModal">
-                    <span class="close" id="close3DScatterPlot">&times;</span></div>
-</div>
+            <!-- Project Controls -->
+            <label for="projectList">Project List:</label>
+            <select id="projectList"></select>
+            <label for="projectNumberInput">Project Number:</label>
+            <input type="text" id="projectNumberInput" placeholder="Project Number">
+            <label for="projectNameInput">Project Name:</label>
+            <input type="text" id="projectNameInput" placeholder="Project Name">
+            <label for="mapNameInput">Map ID:</label>
+            <input type="text" id="mapNameInput" placeholder="Map ID">
+        </div>
     </sidebar>
+
+    <!-- Main Content -->
     <div id="left-side">
         <div id="map"></div>
         <table id="markerTable" class="table table-striped">
@@ -539,6 +576,8 @@ margin-top:.5vh;
             </tbody>
         </table>
     </div>
+
+    <!-- Right Side Content -->
     <div id="right-side" class="flex-item">
         <!-- Add your content here -->
     </div>
@@ -550,22 +589,18 @@ margin-top:.5vh;
         <div class="modal-header">
             <span class="close" id="closeSignIn">&times;</span>
             <h2>Sign In</h2>
-        </div> <!-- Closing the modal-header div here -->
-        <label for="signInUsername">Username:</label>
-        <input type="text" id="signInUsername" placeholder="Enter your username">
-        <p id="signInError" style="color:red;"></p> <!-- Error message display for Sign In -->
-        <label for="signInPassword">Password:</label>
-        <input type="password" id="signInPassword" placeholder="Enter your password">
-        <button id="signInButton">Sign In</button>
-        <button id="openSignUp">Sign Up</button>
+        </div>
+        <div class="modal-body">
+            <label for="signInUsername">Username:</label>
+            <input type="text" id="signInUsername" placeholder="Enter your username">
+            <p id="signInError" style="color:red;"></p>
+            <label for="signInPassword">Password:</label>
+            <input type="password" id="signInPassword" placeholder="Enter your password">
+            <button id="signInButton">Sign In</button>
+            <button id="openSignUp">Sign Up</button>
+        </div>
     </div>
 </div>
-
-<!-- Display for user creation and registration feedback -->
-<div id="feedbackContainer" style="display: none;">
-    <p id="feedbackMessage"></p>
-</div>
-
 
 <!-- Sign-up Modal -->
 <div id="signUpModal" class="modal1 noselect">
@@ -573,22 +608,56 @@ margin-top:.5vh;
         <div class="modal-header">
             <span class="close" id="closeSignUp">&times;</span>
             <h2>Sign Up</h2>
-        </div> <!-- Closing the modal-header div here -->
-        <label for="signUpUsername">Username:</label>
-        <input type="text" id="signUpUsername" placeholder="Choose a username">
-        <p id="signUpError" style="color:red;"></p> <!-- Error message display for Sign Up -->
-        <label for="signUpPassword">Password:</label>
-        <input type="password" id="signUpPassword" placeholder="Choose a password">
-        <button id="signUpButton">Sign Up</button>
+        </div>
+        <div class="modal-body">
+            <label for="signUpUsername">Username:</label>
+            <input type="text" id="signUpUsername" placeholder="Choose a username">
+            <p id="signUpError" style="color:red;"></p>
+            <label for="signUpPassword">Password:</label>
+            <input type="password" id="signUpPassword" placeholder="Choose a password">
+            <button id="signUpButton">Sign Up</button>
+        </div>
     </div>
 </div>
-
-<!-- User Info Display -->
+    <!-- User Info Display -->
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
- <script>
+    <script>
+class Authentication {
+    async sendRequest(action, username, password) {
+        try {
+            const response = await fetch('https://neftyartstudio.com/auth_master.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `action=${action}&username=${username}&password=${password}`
+            });
+            return await response.json();
+        } catch (error) {
+            return { status: 'error', message: 'Error connecting to the server.' };
+        }
+    }
+
+    displayFeedback(message, type, feedbackMessage, feedbackContainer) {
+        if (type === 'signIn') {
+            document.getElementById("signInError").textContent = message;
+        } else if (type === 'signUp') {
+            document.getElementById("signUpError").textContent = message;
+        } else {
+            feedbackMessage.textContent = message;
+            feedbackContainer.style.display = "block";
+            setTimeout(() => {
+                feedbackContainer.style.display = "none";
+                feedbackMessage.textContent = "";
+            }, 5000);
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    const auth = new Authentication();
     const signInModal = document.getElementById("signInModal");
     const signUpModal = document.getElementById("signUpModal");
     const signInUsername = document.getElementById("signInUsername");
@@ -598,6 +667,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const feedbackContainer = document.getElementById("feedbackContainer");
     const feedbackMessage = document.getElementById("feedbackMessage");
 
+    // Check if the user is already logged in
+    const loggedInUser = localStorage.getItem('loggedInUser');
+    if (loggedInUser) {
+        document.getElementById("userInfo").style.display = "block"; // Display the user info section
+        document.getElementById("usernameDisplay").textContent = loggedInUser; // Update the username display
+    }
+
+localStorage.setItem('loggedInUser', signInUsername.value); // for login
+localStorage.setItem('loggedInUser', signUpUsername.value); // for sign-up
+localStorage.removeItem('loggedInUser');
     // Function to send requests to the PHP endpoint
     async function sendRequest(action, username, password) {
         try {
@@ -628,7 +707,37 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 5000);
         }
     }
-
+ document.getElementById("signInButton").addEventListener("click", async () => {
+     const response = await auth.sendRequest('login', signInUsername.value, signInPassword.value);
+        auth.displayFeedback(response.message, response.status === 'success' ? null : 'signIn', feedbackMessage, feedbackContainer);
+    if (response.status === 'success') {
+        signInModal.style.display = "none";
+        document.getElementById("userInfo").style.display = "block"; // Display the user info section
+        document.getElementById("usernameDisplay").textContent = signInUsername.value; // Update the username display
+    }
+});
+document.getElementById("signUpButton").addEventListener("click", async () => {
+    if (signUpUsername.value.trim() === "" || signUpPassword.value.trim() === "") {
+        displayFeedback("Please enter a valid username and password.", 'signUp');
+        return;
+    }
+    const response = await auth.sendRequest('register', signUpUsername.value, signUpPassword.value);
+        auth.displayFeedback(response.message, response.status === 'success' ? null : 'signUp', feedbackMessage, feedbackContainer);
+ if (response.status === 'success') {
+            signUpModal.style.display = "none";
+            document.getElementById("userInfo").style.display = "block";
+            document.getElementById("usernameDisplay").textContent = signUpUsername.value;
+            localStorage.setItem('loggedInUser', signUpUsername.value); // Store the username in local storage
+        }
+    });
+    document.getElementById("authBtn").addEventListener("click", () => { signInModal.style.display = "block"; });
+    document.getElementById("openSignUp").addEventListener("click", () => {
+        signInModal.style.display = "none";
+        signUpModal.style.display = "block";
+    });
+    document.getElementById("closeSignIn").addEventListener("click", () => { signInModal.style.display = "none"; });
+    document.getElementById("closeSignUp").addEventListener("click", () => { signUpModal.style.display = "none"; });
+});
     // Draggable functionality
     function makeDraggable(modal) {
         let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
@@ -661,33 +770,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    document.getElementById("signInButton").addEventListener("click", async () => {
-        const response = await sendRequest('login', signInUsername.value, signInPassword.value);
-        displayFeedback(response.message, response.status === 'success' ? null : 'signIn');
-        if (response.status === 'success') signInModal.style.display = "none";
-    });
 
-    document.getElementById("signUpButton").addEventListener("click", async () => {
-        if (signUpUsername.value.trim() === "" || signUpPassword.value.trim() === "") {
-            displayFeedback("Please enter a valid username and password.", 'signUp');
-            return;
-        }
-        const response = await sendRequest('register', signUpUsername.value, signUpPassword.value);
-        displayFeedback(response.message, response.status === 'success' ? null : 'signUp');
-        if (response.status === 'success') signUpModal.style.display = "none";
-    });
 
     makeDraggable(signInModal);
     makeDraggable(signUpModal);
 
-    document.getElementById("authBtn").addEventListener("click", () => { signInModal.style.display = "block"; });
-    document.getElementById("openSignUp").addEventListener("click", () => {
-        signInModal.style.display = "none";
-        signUpModal.style.display = "block";
-    });
-    document.getElementById("closeSignIn").addEventListener("click", () => { signInModal.style.display = "none"; });
-    document.getElementById("closeSignUp").addEventListener("click", () => { signUpModal.style.display = "none"; });
-});
+
+
   // Function to hide the splash overlay after a delay or when the page is fully loaded
 setTimeout(function () {
     var splashOverlay = document.getElementById("splash-overlay");
@@ -751,6 +840,8 @@ function exportMapData() {
 
             // Add existing markers to map
             markerData.forEach(coord => addMarker(coord));
+    // Attach the event listener for the export button
+    document.getElementById("exportMapDataBtn").addEventListener("click", exportMapData);
 
             // Attach event handlers
             map.on('click', handleMapClick);
@@ -836,7 +927,7 @@ function handleMapClick(e) {
 
     const addButton = document.createElement("button");
     addButton.textContent = "Add Marker";
-    addButton.className = "popup-button"; // Add a class for styling
+addButton.className = "add-marker-button"; // Use the new class for styling
     addButton.addEventListener("click", () => {
         const wellID = wellIDInput.value.trim();
         const elevation = parseFloat(elevationInput.value.trim());
@@ -1009,10 +1100,10 @@ function showContourPlot() {
     modal.style.display = "block";
     modalOpen = true;
 
-    // Make the modal draggable (You're already doing this)
-    dragElement(modal);
+    // Make the modal draggable
+    dragElement(modal.querySelector('.modal-content'));
 
-    // Redraw the contour plot when opening the modal (You're already doing this)
+    // Redraw the contour plot when opening the modal
     drawContourPlot();
 }
 
@@ -1024,9 +1115,12 @@ function hideContourPlot() {
     modal.style.display = "none";
     modalOpen = false;
 }
+// Add an event listener to close the modal when the close button is clicked
+document.getElementById("closeContourPlot").addEventListener("click", hideContourPlot);
+
 
 // Make the DIV element draggable:
-dragElement(document.getElementById("draggableModal"));
+dragElement(document.getElementById("contourPlotModal"));  // Adjusted line
 
 function dragElement(elmnt) {
   var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
@@ -1083,56 +1177,68 @@ function drawContourPlot() {
         name: 'Markers'
     };
 
-    // Create a contour plot for elevations
-    const contourTrace = {
-        x: longitudes,
-        y: latitudes,
-        z: elevations,
-        type: 'contour',
-        colorscale: 'Viridis', // You can choose a different colorscale
-        zmin: Math.min(...elevations),
-        zmax: Math.max(...elevations),
-        colorbar: {
-            title: 'Elevation'
-        },
-        contours: {
-            coloring: 'heatmap'
-        },
-        name: 'Elevation'
-    };
 
+// Update the contourTrace to set the font color of the colorbar title to white
+const contourTrace = {
+    x: longitudes,
+    y: latitudes,
+    z: elevations,
+    type: 'contour',
+    colorscale: 'Viridis',
+    zmin: Math.min(...elevations),
+    zmax: Math.max(...elevations),
+    colorbar: {
+        title: {
+            text: 'Elevation',
+            font: {
+                color: 'white' // Set the font color of the title to white
+            }
+        },
+        tickfont: {
+            color: 'white' // Set the font color of the numbers to white
+        }
+    },
+    contours: {
+        coloring: 'heatmap'
+    },
+    name: 'Elevation'
+};
     const data = [markerTrace, contourTrace];
 
-    const layout = {
-        xaxis: { 
-            title: 'Longitude',
-            range: [minLng, maxLng],
-            tickcolor: 'white',
-            tickfont: {
-                color: 'white',
-            },
-            titlefont: {
-                color: 'white',
-            },
-            linecolor: 'white',
-            gridcolor: 'white' // Or any other shade of gray or color you'd like for the grid lines
+const layout = {
+    xaxis: {
+        title: 'Longitude',
+        range: [minLng, maxLng],
+        tickcolor: 'white',
+        tickfont: {
+            color: 'white',
         },
-        yaxis: { 
-            title: 'Latitude',
-            range: [minLat, maxLat],
-            tickcolor: 'white',
-            tickfont: {
-                color: 'white',
-            },
-            titlefont: {
-                color: 'white',
-            },
-            linecolor: 'white',
-            gridcolor: 'white' // Or any other shade of gray or color you'd like for the grid lines
+        titlefont: {
+            color: 'white',
         },
-        paper_bgcolor: 'rgba(0,0,0,0)',  // Transparent background
-        plot_bgcolor: 'rgba(0,0,0,0)',  // Transparent background
-    };
+        linecolor: 'white',
+        gridcolor: 'white',
+    },
+    yaxis: {
+        title: 'Latitude',
+        range: [minLat, maxLat],
+        tickcolor: 'white',
+        tickfont: {
+            color: 'white',
+        },
+        titlefont: {
+            color: 'white',
+        },
+        linecolor: 'white',
+        gridcolor: 'white',
+    },
+    autosize: false, // Disable autosizing
+    width: 600, // Set the width to match the container's max width
+    height: 400, // Set the height to match the container's max height
+    margin: { t: 20, b: 60, l: 60, r: 20 }, // Add padding
+    paper_bgcolor: 'rgba(0,0,0,0)', // Transparent background
+    plot_bgcolor: 'rgba(0,0,0,0)', // Transparent background
+};
 
     if (modalOpen) {
         Plotly.newPlot('contourPlot', data, layout);
