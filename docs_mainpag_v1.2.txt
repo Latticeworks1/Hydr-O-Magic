@@ -1,0 +1,274 @@
+Hydro-Matic Version 1.2 Documentation
+Table of Contents
+
+    Introduction
+    Project Overview
+    Getting Started
+        Prerequisites
+        Installation
+    Usage
+        Creating a New Project
+        Adding and Managing Markers
+        Exporting Map Data
+        Contour Plot
+    Project Data Management
+    Advanced Features
+        Map Layer Switching
+        Contour Plot Modal
+    File Management
+    Local Storage
+    Contributing
+    License
+
+1. Introduction
+
+Welcome to Hydro-Matic Version 1.2 documentation, a senior-level guide for an advanced web-based mapping tool designed for hydrological projects. This documentation provides comprehensive instructions and insights into using Hydro-Matic effectively.
+2. Project Overview
+
+Hydro-Matic Version 1.2 is developed using HTML, CSS, JavaScript, Bootstrap 5, Leaflet, and Plotly.js. It empowers users to:
+
+    Create and manage hydrological projects.
+    Easily add, edit, and remove markers on the map.
+    Visualize elevation data with an interactive contour plot.
+    Store and retrieve data locally for data persistence.
+    Utilize advanced features such as map layer switching and contour plot modals.
+
+3. Getting Started
+3.1 Prerequisites
+
+Before using Hydro-Matic Version 1.2, ensure you have the following prerequisites:
+
+    A modern web browser (e.g., Google Chrome, Mozilla Firefox).
+    An Integrated Development Environment (IDE), preferably PyCharm (optional but recommended for development).
+    A server environment, such as a Linode Virtual Private Server (VPS), to host the application.
+
+3.2 Installation
+
+    Clone or download the Hydro-Matic Version 1.2 repository from the official GitHub repository.
+
+shell
+
+git clone https://github.com/yourrepository/hydro-matic.git
+
+    Host the application on your server following best practices for web hosting.
+
+    Access the application through your web browser by navigating to the appropriate URL.
+
+4. Usage
+4.1 Creating a New Project
+
+To create a new hydrological project:
+
+    Launch the Hydro-Matic application.
+
+    Provide essential project details, including Project Number, Project Name, and Map Name, in the designated input fields.
+
+    Click the "Create Project" button to initialize a new project.
+
+html
+
+<!-- HTML Code Snippet -->
+<label for="projectSelect" class="form-label-inline">Project:</label>
+<select id="projectSelect" class="form-control-inline custom-input">
+  <!-- Options for selecting a project will be added dynamically -->
+</select>
+
+4.2 Adding and Managing Markers
+Adding Markers
+
+Adding markers to your hydrological project is straightforward:
+
+    Click on the map at your desired location.
+
+    Input the Well ID and Elevation information in the presented popup dialog.
+
+    Confirm the addition by clicking the "Add Marker" button. The marker will appear on the map, and the data will be stored in your project.
+
+javascript
+
+// JavaScript Code Snippet
+map.on('click', function(e) {
+  // New point clicked
+  var lat = e.latlng.lat;
+  var lng = e.latlng.lng;
+
+  var wellId = "";
+  while (wellId.trim() === "") {
+    wellId = prompt('Enter Well ID:');
+    if (wellId === null) return; // User canceled
+  }
+  // ...
+});
+
+Deleting Markers
+
+Removing markers is just as simple:
+
+    Right-click on the marker you wish to delete.
+
+    The marker will be removed from the map, and its data will be deleted from your project.
+
+javascript
+
+// JavaScript Code Snippet
+function deleteMapMarker(markerKey) {
+  if (markerKey in storage.mapMarkers) {
+    map.removeLayer(storage.mapMarkers[markerKey]);
+    delete storage.mapMarkers[markerKey];
+  }
+}
+
+Editing Marker Details
+
+For editing marker details:
+
+    Click on the Well ID or Elevation values in the table corresponding to the marker you want to edit.
+
+    Make your desired changes and press Enter to save them. The data will be updated in your project accordingly.
+
+javascript
+
+// JavaScript Code Snippet
+// Event listener for editing Well ID
+cell1.querySelector('.wellid').addEventListener('input', function() {
+  // Get the updated Well ID value
+  var updatedWellId = this.value.trim();
+
+  if (updatedWellId === "") {
+    alert('Well ID cannot be empty. Please enter a valid Well ID.');
+    this.value = wellId; // Reset the input to the original Well ID
+    return;
+  }
+  // ...
+});
+
+4.3 Exporting Map Data
+
+To export your project's map data in JSON format:
+
+    Click the "Export Map Data" button.
+
+    A JSON file containing project details and marker data will be generated, allowing for data sharing and future imports.
+
+javascript
+
+// JavaScript Code Snippet
+// Function to update the JSON display
+function updateJSONDisplay() {
+  var jsonDisplay = document.getElementById('jsonDisplay');
+  jsonDisplay.textContent = JSON.stringify(storage, null, 2); // Pretty-print with 2-space indentation
+}
+
+4.4 Contour Plot
+
+The contour plot is a powerful tool for visualizing elevation data:
+
+    Click the "Show Contour Plot" button to open a modal displaying the contour plot of elevation data.
+
+    The contour plot automatically updates based on map zoom and pan events, providing real-time insights into your data.
+
+javascript
+
+// JavaScript Code Snippet
+// Initialize the plot
+var plotDiv = document.getElementById('plotDiv');
+function updatePlotBasedOnMapView() {
+  // ...
+}
+map.on('moveend', updatePlotBasedOnMapView);
+
+// Initialize the plot initially
+updatePlotBasedOnMapView();
+
+5. Project Data Management
+
+All project data, including markers and project details, is stored in local storage. You can clear local storage to start fresh or load project data from JSON files.
+
+javascript
+
+// JavaScript Code Snippet
+// Function to clear local storage
+function clearLocalStorage() {
+  if (confirm("Are you sure you want to clear all project data?")) {
+    localStorage.clear();
+    location.reload(); // Refresh the page
+  }
+}
+
+6. Advanced Features
+6.1 Map Layer Switching
+
+Toggle between different map layers (Street Map and Esri Satellite) using the "Map Toggle" checkbox.
+
+javascript
+
+// JavaScript Code Snippet
+// Event listener for map layer switch
+document.getElementById('mapToggle').addEventListener('change', function() {
+  var tileLayer = this.checked ? streetMapLayer : esriSatelliteLayer;
+  map.eachLayer(function(layer) {
+    if (layer instanceof L.TileLayer) {
+      map.removeLayer(layer);
+    }
+  });
+  map.addLayer(tileLayer);
+});
+
+6.2 Contour Plot Modal
+
+Make the contour plot modal draggable and resizable for enhanced usability.
+
+javascript
+
+// JavaScript Code Snippet
+// Make the contour plot modal draggable and resizable
+$(function() {
+  $('#contourPlotModal').draggable();
+  $('#contourPlotModal').resizable();
+});
+
+7. File Management
+
+Use the "Load Map Data" button to load project data from a JSON file. Exported project data can be saved and shared as JSON files.
+
+javascript
+
+// JavaScript Code Snippet
+// Function to load project data from a JSON file
+function loadProjectDataFromFile() {
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = function() {
+    var file = input.files[0];
+    var reader = new FileReader();
+    reader.readAsText(file);
+    reader.onload = function() {
+      var data = JSON.parse(reader.result);
+      // Process and load the data into the application
+    };
+  };
+  input.click();
+}
+
+8. Local Storage
+
+Project data is stored in the browser's local storage for persistence. Clear local storage to reset the application.
+
+javascript
+
+// JavaScript Code Snippet
+// Function to clear local storage
+function clearLocalStorage() {
+  if (confirm("Are you sure you want to clear all project data?")) {
+    localStorage.clear();
+    location.reload(); // Refresh the page
+  }
+}
+
+9. Contributing
+
+Contributions to the Hydro-Matic map application are welcome. Please refer to the project's GitHub repository for guidelines.
+10. License
+
+This application is open-source and available under the MIT License.
