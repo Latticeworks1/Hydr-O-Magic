@@ -1,0 +1,119 @@
+Hydro-Matic Map Application Documentation
+Table of Contents
+
+    Introduction
+    Project Overview
+    Getting Started
+        Prerequisites
+        Installation
+    Usage
+        Creating a New Project
+        Loading Existing Project Data
+        Adding and Managing Markers
+        Exporting Map Data
+        Contour Plot
+    Project Data Management
+    Advanced Features
+        Map Layer Switching
+        Contour Plot Modal
+    File Management
+    Local Storage
+    Contributing
+    License
+
+1. Introduction
+
+The Hydro-Matic Map Application is a web-based mapping tool designed to assist users in creating, managing, and analyzing geographical data related to hydrological projects. This documentation provides a detailed guide on how to use and customize the Hydro-Matic map application for various projects.
+2. Project Overview
+
+The Hydro-Matic map application is built using JavaScript, Leaflet.js, and Plotly.js. It allows users to:
+
+    Create and manage projects.
+    Add and customize markers on the map.
+    Export project data in JSON format.
+    Visualize elevation data using a contour plot.
+    Switch between different map layers.
+
+3. Getting Started
+Prerequisites
+
+To run the Hydro-Matic map application, you'll need the following:
+
+    A modern web browser (e.g., Google Chrome, Mozilla Firefox).
+    PyCharm IDE (Optional but recommended for development).
+    A server environment (e.g., Linode VPS) to host the application.
+
+Installation
+
+    Clone or download the Hydro-Matic repository from GitHub.
+
+    Host the application on your server.
+
+    Open the application in your web browser.
+
+4. Usage
+Creating a New Project
+
+    Launch the Hydro-Matic application.
+    Enter project details (Project Number, Project Name, Map Name) in the provided input fields.
+    Click the "Create Project" button to create a new project.
+
+Loading Existing Project Data
+
+    Use the project selection dropdown to choose an existing project.
+    The application will load the project's map data, including markers.
+
+Adding and Managing Markers
+
+    Click on the map to add a new marker.
+    Fill in the Well ID and Elevation information in the popup.
+    Click "Add Marker" to add the marker to the map and project data.
+    Right-click on a marker to remove it.
+
+Exporting Map Data
+
+    Click the "Export Map Data" button to export the project's data in JSON format.
+    The exported file will include project details and marker data.
+
+Contour Plot
+
+    Click the "Show Contour Plot" button to open a modal with a contour plot of elevation data.
+    The contour plot updates based on map zoom and move events.
+
+5. Project Data Management
+
+    All project data, including markers and project details, is stored in local storage.
+    You can clear local storage to start fresh or load project data from JSON files.
+
+6. Advanced Features
+Map Layer Switching
+
+    Toggle between different map layers (Street Map and Esri Satellite) using the "Map Toggle" checkbox.
+
+Contour Plot Modal
+
+    Make the contour plot modal draggable and resizable.
+
+7. File Management
+
+    Use the "Load Map Data" button to load project data from a JSON file.
+    Exported project data can be saved and shared as JSON files.
+
+8. Local Storage
+
+    Project data is stored in the browser's local storage for persistence.
+    Clear local storage to reset the application.
+
+9. Contributing
+
+    Contributions to the Hydro-Matic map application are welcome. Please refer to the project's GitHub repository for guidelines.
+
+10. License
+
+    This application is open-source and available under the MIT License.
+
+This documentation provides a comprehensive guide to using the Hydro-Matic map application. For any further questions or assistance, please contact the project maintainers or refer to the GitHub repository.
+
+Thank you for using Hydro-Matic!
+
+Please replace "yourrepository/hydro-matic" in the documentation with the actual GitHub repository where your Hydro-Matic code is hosted.
